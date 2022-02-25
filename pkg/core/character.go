@@ -6,19 +6,24 @@ const (
 	MagicianCharacterType CharacterType = iota
 )
 
-type Character struct {
-	type CharacterType
-	name string
+type baseCharacter struct {
+	name       string
 	multiplier uint8
 }
 
-func NewCharacter(ct CharacterType) *Character {
+type Character struct {
+	baseCharacter
+	ctype CharacterType
+}
+
+func NewCharacter(ct CharacterType) Character {
 	n, m := resolveNameAndMult(ct)
 
-	return &Character{
-		type: ct,
-		name: n,
-		multiplier: m}
+	return Character{
+		ctype: ct,
+		baseCharacter: baseCharacter{
+			name:       n,
+			multiplier: m}}
 }
 
 func (c *Character) Name() string {
@@ -31,9 +36,9 @@ func (c *Character) Multiplier() uint8 {
 
 func resolveNameAndMult(ct CharacterType) (string, uint8) {
 	switch ct {
-		case: MagicianCharacterType:
-			return "Magician", 1
-		default:
-			return "Useless Character", 0
+	case MagicianCharacterType:
+		return "Magician", 1
+	default:
+		return "Useless Character", 0
 	}
 }
