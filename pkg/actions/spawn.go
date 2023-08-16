@@ -2,10 +2,9 @@ package actions
 
 import (
 	"errors"
-	"fmt"
 
+	"github.com/ciphermountain/deadenz/internal/util"
 	deadenz "github.com/ciphermountain/deadenz/pkg"
-	"github.com/ciphermountain/deadenz/pkg/characters"
 	"github.com/ciphermountain/deadenz/pkg/events"
 )
 
@@ -14,7 +13,8 @@ var (
 )
 
 type WithData struct {
-	Items []deadenz.Item
+	Items      []deadenz.Item
+	Characters []deadenz.Character
 }
 
 // Spawn assigns a new character to an existing profile and modifies xp, backpack,
@@ -26,11 +26,7 @@ func (d *WithData) Spawn(profile deadenz.Profile) (deadenz.Profile, []events.Eve
 		return profile, nil, ErrAlreadySpawnedIn
 	}
 
-	char, err := characters.NewRandom()
-	if err != nil {
-		return profile, nil, fmt.Errorf("failed to create new character: %w", err)
-	}
-
+	char := d.Characters[util.Random(0, int64(len(d.Characters)-1))]
 	profile.XP = profile.XP + uint(char.Multiplier)
 	profile.Active = &char
 	// TODO: register in multiverse

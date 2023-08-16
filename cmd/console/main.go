@@ -9,7 +9,6 @@ import (
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/actions"
 	"github.com/ciphermountain/deadenz/pkg/events"
-	"github.com/ciphermountain/deadenz/pkg/items"
 )
 
 func main() {
@@ -32,20 +31,10 @@ func main() {
 		},
 	}
 
-	// load data from json file
-	dat, err := os.ReadFile("./assets/default_items.json")
-	if err != nil {
-		os.Exit(1)
-	}
+	action := &actions.WithData{}
 
-	it, err := items.LoadItems(dat)
-	if err != nil {
-		os.Exit(1)
-	}
-
-	action := &actions.WithData{
-		Items: it,
-	}
+	loadItems(action, "./assets/default_items.json")
+	loadCharacters(action, "./assets/default_characters.json")
 
 	defaultAction := "spawnin"
 
