@@ -6,6 +6,12 @@ The default version of the game provided runs directly on a console and is curre
 a single player game. This version currently supports the basic functions: spawnin,
 walk, backpack, xp, and currency.
 
+## Run the Game
+
+```
+$ make run
+```
+
 ## Game Commands
 
 ### Spawnin
