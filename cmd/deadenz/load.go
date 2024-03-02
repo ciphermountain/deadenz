@@ -68,3 +68,19 @@ func loadActionEvents(data *actions.WithData, path string) {
 
 	data.Actions = it
 }
+
+func loadMutationEvents(data *actions.WithData, path string) {
+	// load data from json file
+	dat, err := os.ReadFile(path)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	live, die, err := events.LoadMutations(dat)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	data.LiveMutations = live
+	data.DieMutations = die
+}

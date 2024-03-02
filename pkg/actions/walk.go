@@ -110,7 +110,7 @@ func (d *WithData) action(profile deadenz.Profile) (deadenz.Profile, []events.Ev
 		d.Actions[util.Random(0, int64(len(d.Actions)-1))],
 	}
 
-	p, e, err := mutation(profile)
+	p, e, err := d.mutation(profile)
 	if err != nil {
 		return profile, nil, err
 	}
@@ -118,9 +118,9 @@ func (d *WithData) action(profile deadenz.Profile) (deadenz.Profile, []events.Ev
 	return p, append(evts, e...), nil
 }
 
-func mutation(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
+func (d *WithData) mutation(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
 	evts := []events.Event{
-		events.NewRandomMutationEvent(),
+		events.NewRandomMutationEvent(d.LiveMutations, d.DieMutations, events.DefaultDieRate),
 	}
 
 	return profile, evts, nil

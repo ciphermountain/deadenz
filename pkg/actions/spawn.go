@@ -20,6 +20,8 @@ type WithData struct {
 	// events
 	ItemDecisions []events.ItemDecisionEvent
 	Actions       []events.ActionEvent
+	LiveMutations []events.LiveMutationEvent
+	DieMutations  []events.DieMutationEvent
 }
 
 // Spawn assigns a new character to an existing profile and modifies xp, backpack,
