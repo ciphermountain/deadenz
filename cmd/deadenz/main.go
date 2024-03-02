@@ -12,8 +12,6 @@ import (
 )
 
 func main() {
-	// load default characters from assets
-
 	fmt.Println("This is the console version of the game and will take input from stdin!")
 
 	reader := bufio.NewReader(os.Stdin)
@@ -32,13 +30,21 @@ func main() {
 	}
 
 	action := &actions.WithData{}
+	config := Config{
+		ItemsSource:              NewFileLoader("./assets/default_items.json"),
+		CharactersSource:         NewFileLoader("./assets/default_characters.json"),
+		ItemDecisionEventsSource: NewFileLoader("./assets/default_item_decision_events.json"),
+		ActionEventsSource:       NewFileLoader("./assets/default_action_events.json"),
+		MutationEventsSource:     NewFileLoader("./assets/default_mutation_events.json"),
+		EncounterEventsSource:    NewFileLoader("./assets/default_encounter_events.json"),
+	}
 
-	loadItems(action, "./assets/default_items.json")
-	loadCharacters(action, "./assets/default_characters.json")
-	loadItemDecisionEvents(action, "./assets/default_item_decision_events.json")
-	loadActionEvents(action, "./assets/default_action_events.json")
-	loadMutationEvents(action, "./assets/default_mutation_events.json")
-	loadEncounterEvents(action, "./assets/default_encounter_events.json")
+	loadItems(action, config)
+	loadCharacters(action, config)
+	loadItemDecisionEvents(action, config)
+	loadActionEvents(action, config)
+	loadMutationEvents(action, config)
+	loadEncounterEvents(action, config)
 
 	defaultAction := "spawnin"
 

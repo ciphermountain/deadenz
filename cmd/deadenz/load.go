@@ -9,9 +9,8 @@ import (
 	"github.com/ciphermountain/deadenz/pkg/items"
 )
 
-func loadItems(data *actions.WithData, path string) {
-	// load data from json file
-	dat, err := os.ReadFile(path)
+func loadItems(data *actions.WithData, config Config) {
+	dat, err := config.ItemsSource.Data()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -24,9 +23,8 @@ func loadItems(data *actions.WithData, path string) {
 	data.Items = it
 }
 
-func loadCharacters(data *actions.WithData, path string) {
-	// load data from json file
-	dat, err := os.ReadFile(path)
+func loadCharacters(data *actions.WithData, config Config) {
+	dat, err := config.CharactersSource.Data()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -39,9 +37,8 @@ func loadCharacters(data *actions.WithData, path string) {
 	data.Characters = it
 }
 
-func loadItemDecisionEvents(data *actions.WithData, path string) {
-	// load data from json file
-	dat, err := os.ReadFile(path)
+func loadItemDecisionEvents(data *actions.WithData, config Config) {
+	dat, err := config.ItemDecisionEventsSource.Data()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -54,9 +51,8 @@ func loadItemDecisionEvents(data *actions.WithData, path string) {
 	data.ItemDecisions = it
 }
 
-func loadActionEvents(data *actions.WithData, path string) {
-	// load data from json file
-	dat, err := os.ReadFile(path)
+func loadActionEvents(data *actions.WithData, config Config) {
+	dat, err := config.ActionEventsSource.Data()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -69,9 +65,8 @@ func loadActionEvents(data *actions.WithData, path string) {
 	data.Actions = it
 }
 
-func loadMutationEvents(data *actions.WithData, path string) {
-	// load data from json file
-	dat, err := os.ReadFile(path)
+func loadMutationEvents(data *actions.WithData, config Config) {
+	dat, err := config.MutationEventsSource.Data()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -85,9 +80,8 @@ func loadMutationEvents(data *actions.WithData, path string) {
 	data.DieMutations = die
 }
 
-func loadEncounterEvents(data *actions.WithData, path string) {
-	// load data from json file
-	dat, err := os.ReadFile(path)
+func loadEncounterEvents(data *actions.WithData, config Config) {
+	dat, err := config.EncounterEventsSource.Data()
 	if err != nil {
 		os.Exit(1)
 	}
