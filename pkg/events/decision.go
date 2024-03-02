@@ -1,36 +1,45 @@
 package events
 
 import (
-	"fmt"
-
-	"github.com/ciphermountain/deadenz/internal/util"
+	"encoding/json"
 )
 
-func NewRandomDecisionEvent() Event {
-	decisionNames := []string{
-		"add it to your backpack", // TODO: should add to the backpack
-		"ignore it",
-		"eat it",
-		"look at it inquisitively",
-		"pour water on it",
-		"pretend it's a microphone and you sing",
-		"mistake it for a water bottle and you drink from it",
-		"burn it",
-		"throw it in the rubbish bin",
-		"play baseball with it",
-		"feed it to your pet tiger in Oklahoma",
-		"throw it at your best friend",
+func LoadItemDecisions(b []byte) ([]ItemDecisionEvent, error) {
+	type decision struct {
+		Message       string `json:"message"`
+		AddToBackpack bool   `json:"addToBackpack"`
 	}
 
-	idx := int(util.Random(0, int64(len(decisionNames)-1)))
+	var loaded []decision
 
-	return &LiveMutationEvent{value: decisionNames[idx]}
+	if err := json.Unmarshal(b, &loaded); err != nil {
+		return nil, err
+	}
+
+	evts := []ItemDecisionEvent{}
+
+	for _, l := range loaded {
+		evts = append(evts, ItemDecisionEvent{
+			value:         l.Message,
+			addToBackpack: l.AddToBackpack,
+		})
+	}
+
+	return evts, nil
 }
 
-type DecisionEvent struct {
-	value string
+// DecisionEvent is intended to be an action on an item found and is not expected to result in a mutation on the
+// character.
+type ItemDecisionEvent struct {
+	value         string
+	addToBackpack bool
 }
 
-func (e DecisionEvent) String() string {
-	return fmt.Sprintf("you %s", e.value)
+// String returns the event in string form.
+func (e ItemDecisionEvent) String() string {
+	return e.value
+}
+
+func (e ItemDecisionEvent) AddToBackpack() bool {
+	return e.addToBackpack
 }

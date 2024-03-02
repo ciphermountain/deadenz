@@ -36,6 +36,8 @@ func NewRandomDieMutationEvent() Event {
 		"die of old age",
 		"die of young age",
 		"die from a medieval executioner",
+		"die of measles",
+		"die and the grim reaper haunts you forever",
 	}
 
 	idx := int(util.Random(0, int64(len(waysToDie)-1)))

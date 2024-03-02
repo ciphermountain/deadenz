@@ -13,8 +13,12 @@ var (
 )
 
 type WithData struct {
+	// base items
 	Items      []deadenz.Item
 	Characters []deadenz.Character
+
+	// events
+	ItemDecisions []events.ItemDecisionEvent
 }
 
 // Spawn assigns a new character to an existing profile and modifies xp, backpack,

@@ -68,7 +68,7 @@ func NewRandomEncounterEvent() Event {
 		"a big stinky fart",
 		"a tree",
 		"nothing",
-		"a huge deasel enjine druck",
+		"a huge diesel engine truck",
 		"a duck",
 		"a big stinky diaper",
 		"the man with the upside down face",
@@ -80,6 +80,8 @@ func NewRandomEncounterEvent() Event {
 		"a very cute doggy",
 		"a TOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOT",
 		"a tiny tot",
+		"a fluffy",
+		"a fig",
 	}
 
 	idx := int(util.Random(0, int64(len(encounters)-1)))

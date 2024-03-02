@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	ErrNotSpawnedIn     = errors.New("no active character. spawnin to begin.")
-	ErrBackpackTooSmall = errors.New("not enough room in your backpack.")
+	ErrNotSpawnedIn     = errors.New("no active character. spawnin to begin")
+	ErrBackpackTooSmall = errors.New("not enough room in your backpack")
 )
 
 func (d *WithData) Walk(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
@@ -54,28 +54,42 @@ func (d *WithData) Walk(profile deadenz.Profile) (deadenz.Profile, []events.Even
 	profile.Currency = profile.Currency + uint(profile.Active.Multiplier*3)
 
 	// if any event is a death event, remove active character and apply backpack recovery
+EventLoop:
 	for _, evt := range evts {
-		if _, ok := evt.(*events.DieMutationEvent); ok {
-			profile.Active = nil
+		switch evt.(type) {
+		case *events.DieMutationEvent:
+			profile = deathEventMiddleware(profile)
 
-			backpack := []deadenz.Item{}
-
-			// a locker allows the backpack items to be recovered
-			if profile.ActiveItem != nil && profile.ActiveItem.Type == items.Locker {
-				profile.Stats = profile.ActiveItem.Mutate(profile.Stats)
-				profile.ActiveItem = nil
-
-				// backpack recovery
-				backpack = profile.Backpack
-			}
-
-			profile.Backpack = backpack
-
-			break
+			// TODO: what about conflicting events?
+			// short circuit on death
+			break EventLoop
 		}
 	}
 
 	return profile, evts, nil
+}
+
+func (d *WithData) findItem(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
+	// random item from loaded data
+	idx := util.Random(0, int64(len(d.Items)-1))
+	randomItem := d.Items[idx]
+
+	evts := []events.Event{
+		events.NewFindEvent(randomItem),
+	}
+
+	var err error
+
+	dec := d.ItemDecisions[util.Random(0, int64(len(d.ItemDecisions)-1))]
+	if dec.AddToBackpack() {
+		// do the add to backpack
+		profile, err = addToBackpackMiddleware(profile, randomItem)
+		if err != nil {
+			return profile, evts, err
+		}
+	}
+
+	return profile, append(evts, dec), nil
 }
 
 func encounter(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
@@ -112,34 +126,31 @@ func mutation(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) 
 	return profile, evts, nil
 }
 
-func (d *WithData) findItem(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
-	// random item from loaded data
-	idx := util.Random(0, int64(len(d.Items)-1))
-	randomItem := d.Items[idx]
+func deathEventMiddleware(profile deadenz.Profile) deadenz.Profile {
+	profile.Active = nil
 
-	evts := []events.Event{
-		events.NewFindEvent(randomItem),
+	backpack := []deadenz.Item{}
+
+	// a locker allows the backpack items to be recovered
+	if profile.ActiveItem != nil && profile.ActiveItem.Type == items.Locker {
+		profile.Stats = profile.ActiveItem.Mutate(profile.Stats)
+		profile.ActiveItem = nil
+
+		// backpack recovery
+		backpack = profile.Backpack
 	}
 
-	p, e, err := decision(profile)
-	if err != nil {
-		return profile, nil, err
-	}
+	profile.Backpack = backpack
 
-	// TODO: don't do string comparisons on events
-	if len(e) > 0 && e[0].String() == "add it to your backpack" {
-		if len(profile.Backpack) < int(profile.BackpackLimit) {
-			profile.Backpack = append([]deadenz.Item{randomItem}, profile.Backpack...)
-		} else {
-			return p, evts, ErrBackpackTooSmall
-		}
-	}
-
-	return p, append(evts, e...), nil
+	return profile
 }
 
-func decision(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
-	dec := events.NewRandomDecisionEvent()
+func addToBackpackMiddleware(profile deadenz.Profile, item deadenz.Item) (deadenz.Profile, error) {
+	if len(profile.Backpack) < int(profile.BackpackLimit) {
+		profile.Backpack = append([]deadenz.Item{item}, profile.Backpack...)
+	} else {
+		return profile, ErrBackpackTooSmall
+	}
 
-	return profile, []events.Event{dec}, nil
+	return profile, nil
 }

@@ -36,8 +36,10 @@ func NewRandomActionEvent() Event {
 		"UWU",
 		"UWU UWU UWU UWU UWU UWU UWU UWU UWU UWU UWU",
 		"you say UWU and it now wants to date you",
-		"you mistake it for a water bottle and you drink from it",
+		"you mistake it for a water bottle and you drink from it", // TODO: doesn't work with `you decide to`
 		"you play a chekin (che-keen) game for 365 days straight",
+		"kick it",
+		"squash it",
 	}
 
 	idx := int(util.Random(0, int64(len(actions)-1)))
@@ -45,6 +47,7 @@ func NewRandomActionEvent() Event {
 	return &ActionEvent{value: actions[idx]}
 }
 
+// ActionEvent is intended to be something a character does. This can have effects on the character.
 type ActionEvent struct {
 	value string
 }

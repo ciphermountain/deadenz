@@ -16,9 +16,9 @@ func NewRandom() (deadenz.Character, error) {
 
 func Load(b []byte) ([]deadenz.Character, error) {
 	type basicCharacter struct {
-		Type int
-		Name string
-		Mult int
+		Type int    `json:"type"`
+		Name string `json:"name"`
+		Mult int    `json:"multiplier"`
 	}
 
 	var loaded []basicCharacter

@@ -1,4 +1,4 @@
-APP=console
+APP=deadenz
 
 GOBASE=$(shell pwd)
 GOBIN=$(GOBASE)/bin
