@@ -2,7 +2,6 @@ package events
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/ciphermountain/deadenz/internal/util"
 )
@@ -22,7 +21,7 @@ type DieMutationEvent struct {
 }
 
 func (e DieMutationEvent) String() string {
-	return fmt.Sprintf("you %s", e.value)
+	return e.value
 }
 
 func LoadMutations(b []byte) ([]LiveMutationEvent, []DieMutationEvent, error) {

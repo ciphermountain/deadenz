@@ -18,10 +18,11 @@ type WithData struct {
 	Characters []deadenz.Character
 
 	// events
-	ItemDecisions []events.ItemDecisionEvent
-	Actions       []events.ActionEvent
-	LiveMutations []events.LiveMutationEvent
-	DieMutations  []events.DieMutationEvent
+	ItemDecisions   []events.ItemDecisionEvent
+	Actions         []events.ActionEvent
+	LiveMutations   []events.LiveMutationEvent
+	DieMutations    []events.DieMutationEvent
+	EncounterEvents []events.EncounterEvent
 }
 
 // Spawn assigns a new character to an existing profile and modifies xp, backpack,

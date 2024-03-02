@@ -94,7 +94,7 @@ func (d *WithData) findItem(profile deadenz.Profile) (deadenz.Profile, []events.
 
 func (d *WithData) encounter(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
 	evts := []events.Event{
-		events.NewRandomEncounterEvent(),
+		d.EncounterEvents[util.Random(0, int64(len(d.EncounterEvents)-1))],
 	}
 
 	p, e, err := d.action(profile)
