@@ -33,7 +33,7 @@ func (d *WithData) Walk(profile deadenz.Profile) (deadenz.Profile, []events.Even
 	if which < 35 {
 		nextFunc = d.findItem
 	} else {
-		nextFunc = encounter
+		nextFunc = d.encounter
 	}
 
 	p, evts, err := nextFunc(profile)
@@ -92,12 +92,12 @@ func (d *WithData) findItem(profile deadenz.Profile) (deadenz.Profile, []events.
 	return profile, append(evts, dec), nil
 }
 
-func encounter(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
+func (d *WithData) encounter(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
 	evts := []events.Event{
 		events.NewRandomEncounterEvent(),
 	}
 
-	p, e, err := action(profile)
+	p, e, err := d.action(profile)
 	if err != nil {
 		return profile, nil, err
 	}
@@ -105,9 +105,9 @@ func encounter(profile deadenz.Profile) (deadenz.Profile, []events.Event, error)
 	return p, append(evts, e...), nil
 }
 
-func action(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
+func (d *WithData) action(profile deadenz.Profile) (deadenz.Profile, []events.Event, error) {
 	evts := []events.Event{
-		events.NewRandomActionEvent(),
+		d.Actions[util.Random(0, int64(len(d.Actions)-1))],
 	}
 
 	p, e, err := mutation(profile)

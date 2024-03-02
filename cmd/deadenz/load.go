@@ -53,3 +53,18 @@ func loadItemDecisionEvents(data *actions.WithData, path string) {
 
 	data.ItemDecisions = it
 }
+
+func loadActionEvents(data *actions.WithData, path string) {
+	// load data from json file
+	dat, err := os.ReadFile(path)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	it, err := events.LoadActionEvents(dat)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	data.Actions = it
+}

@@ -36,6 +36,7 @@ func main() {
 	loadItems(action, "./assets/default_items.json")
 	loadCharacters(action, "./assets/default_characters.json")
 	loadItemDecisionEvents(action, "./assets/default_item_decision_events.json")
+	loadActionEvents(action, "./assets/default_action_events.json")
 
 	defaultAction := "spawnin"
 
