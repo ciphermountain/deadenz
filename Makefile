@@ -1,4 +1,5 @@
 APP=deadenz
+MUL=multiverse
 
 GOBASE=$(shell pwd)
 GOBIN=$(GOBASE)/bin
@@ -20,10 +21,18 @@ benchmark: dependencies fmt
 fmt:
 	gofmt -w .
 
-build: 
+gen-grpc:
+	protoc --go_out=. --go_opt=paths=source_relative \
+		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
+		pkg/multiverse/service/service.proto
+
+build: gen-grpc
 	go build -o $(GOBIN)/$(APP) ./cmd/$(APP)/*.go || exit
 
-build-all: fmt test build
+build-multiverse: gen-grpc
+	go build -o $(GOBIN)/$(MUL) ./cmd/$(MUL)/*.go || exit
+
+build-all: fmt test build build-multiverse
 
 run: build-all
 	./bin/$(APP)

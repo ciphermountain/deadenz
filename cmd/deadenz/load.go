@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/ciphermountain/deadenz/pkg/actions"
@@ -45,6 +46,7 @@ func loadItemDecisionEvents(data *actions.WithData, config Config) {
 
 	it, err := events.LoadItemDecisions(dat)
 	if err != nil {
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 

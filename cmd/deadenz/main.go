@@ -1,20 +1,19 @@
 package main
 
 import (
-	"bufio"
+	"context"
+	"encoding/json"
 	"fmt"
-	"os"
-	"strings"
 
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/actions"
 	"github.com/ciphermountain/deadenz/pkg/events"
+	"github.com/ciphermountain/deadenz/pkg/multiverse"
+	"github.com/ciphermountain/deadenz/pkg/multiverse/service"
 )
 
 func main() {
 	fmt.Println("This is the console version of the game and will take input from stdin!")
-
-	reader := bufio.NewReader(os.Stdin)
 
 	profile := deadenz.Profile{
 		UUID:          "1",
@@ -46,80 +45,93 @@ func main() {
 	loadMutationEvents(action, config)
 	loadEncounterEvents(action, config)
 
-	defaultAction := "spawnin"
+	client, err := multiverse.NewMultiverseClient(":9090")
+	if err != nil {
+		panic(err)
+	}
+
+	commands := NewCommandEventListener("spawnin")
+
+	multi, err := NewMultiverseMessageListener(client)
+	if err != nil {
+		panic(err)
+	}
 
 CommandLoop:
 	for {
-		fmt.Printf("Enter command (%s): ", defaultAction)
+		select {
+		case evt := <-multi.Next():
+			fmt.Printf("event: %+v\n", evt)
+			continue
+		case input := <-commands.Next():
+			var evts []events.Event
 
-		// ReadString will block until the delimiter is entered
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("An error occured while reading input. Please try again", err)
-			return
-		}
+			switch input {
+			case "spawnin":
+				var err error
 
-		// remove the delimeter from the string
-		input = strings.TrimSuffix(input, "\n")
-
-		// set default input
-		if len(input) == 0 {
-			input = defaultAction
-		}
-
-		var evts []events.Event
-
-		switch input {
-		case "spawnin":
-			var err error
-
-			profile, evts, err = action.Spawn(profile)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-
-			defaultAction = "walk"
-		case "walk":
-			var err error
-
-			profile, evts, err = action.Walk(profile)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-		case "backpack":
-			if profile.Active == nil {
-				fmt.Println(actions.ErrNotSpawnedIn)
-
-				continue CommandLoop
-			}
-
-			if len(profile.Backpack) == 0 {
-				fmt.Println("you have no items in your backpack")
-			} else {
-				fmt.Println("your backpack includes:")
-
-				for _, item := range profile.Backpack {
-					fmt.Println(item.Name)
+				profile, evts, err = action.Spawn(profile)
+				if err != nil {
+					fmt.Println(err.Error())
 				}
+
+				commands.SetDefaultCommand("walk")
+			case "walk":
+				var err error
+
+				profile, evts, err = action.Walk(profile)
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+
+				for _, evt := range evts {
+					switch evt.(type) {
+					case events.DieMutationEvent:
+						bts, err := json.Marshal(evt)
+						if err != nil {
+							continue
+						}
+
+						client.PublishEvent(context.Background(), &service.Event{
+							Data: bts,
+						})
+					}
+				}
+			case "backpack":
+				if profile.Active == nil {
+					fmt.Println(actions.ErrNotSpawnedIn)
+
+					continue CommandLoop
+				}
+
+				if len(profile.Backpack) == 0 {
+					fmt.Println("you have no items in your backpack")
+				} else {
+					fmt.Println("your backpack includes:")
+
+					for _, item := range profile.Backpack {
+						fmt.Println(item.Name)
+					}
+				}
+			case "xp":
+				fmt.Println(profile.XP)
+			case "currency":
+				fmt.Println(profile.Currency)
+			case "exit", "quit":
+				break CommandLoop
+			default:
+				fmt.Println("unrecognized command")
 			}
-		case "xp":
-			fmt.Println(profile.XP)
-		case "currency":
-			fmt.Println(profile.Currency)
-		case "exit", "quit":
-			break CommandLoop
-		default:
-			fmt.Println("unrecognized command")
-		}
 
-		for _, event := range evts {
-			fmt.Println(event)
-		}
+			for _, event := range evts {
+				fmt.Println(event)
+			}
 
-		if profile.Active == nil {
-			defaultAction = "spawnin"
-		}
+			if profile.Active == nil {
+				commands.SetDefaultCommand("spawnin")
+			}
 
-		fmt.Println("")
+			fmt.Println("")
+		}
 	}
 }

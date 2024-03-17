@@ -1,6 +1,7 @@
 package events
 
 import (
+	"encoding/json"
 	"fmt"
 
 	deadenz "github.com/ciphermountain/deadenz/pkg"
@@ -17,6 +18,25 @@ type CharacterSpawnEvent struct {
 
 func (e CharacterSpawnEvent) String() string {
 	return fmt.Sprintf("you spawned in as a %s", e.character.Name)
+}
+
+func (e CharacterSpawnEvent) MarshalJSON() ([]byte, error) {
+	bts, err := json.Marshal(e.character)
+	if err != nil {
+		return nil, err
+	}
+
+	msg := json.RawMessage(bts)
+
+	return json.Marshal(typer{
+		Type: "spawnin-event",
+		Data: &msg,
+	})
+}
+
+type typer struct {
+	Type string           `json:"type"`
+	Data *json.RawMessage `json:"data"`
 }
 
 func NewEarnedXPEvent(xp uint) Event {

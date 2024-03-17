@@ -34,3 +34,35 @@ type EncounterEvent struct {
 func (e EncounterEvent) String() string {
 	return fmt.Sprintf("you encounter %s", e.value)
 }
+
+func (e EncounterEvent) MarshalJSON() ([]byte, error) {
+	type event struct {
+		Type    string `json:"type"`
+		Message string `json:"message"`
+	}
+
+	formatted := event{
+		Type:    string(EventTypeEncounter),
+		Message: e.value,
+	}
+
+	return json.Marshal(formatted)
+}
+
+func (e *EncounterEvent) UnmarshalJSON(data []byte) error {
+	type event struct {
+		Message string `json:"message"`
+	}
+
+	var formatted event
+
+	if err := json.Unmarshal(data, &formatted); err != nil {
+		return err
+	}
+
+	*e = EncounterEvent{
+		value: formatted.Message,
+	}
+
+	return nil
+}

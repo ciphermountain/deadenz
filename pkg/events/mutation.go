@@ -2,6 +2,7 @@ package events
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/ciphermountain/deadenz/internal/util"
 )
@@ -22,6 +23,53 @@ type DieMutationEvent struct {
 
 func (e DieMutationEvent) String() string {
 	return e.value
+}
+
+func (e DieMutationEvent) MarshalJSON() ([]byte, error) {
+	formatted := jsonMutationEvent{
+		Type:    string(EventTypeMutation),
+		Message: e.value,
+		IsDeath: true,
+	}
+
+	return json.Marshal(formatted)
+}
+
+func (e *DieMutationEvent) UnmarshalJSON(data []byte) error {
+	var formatted jsonMutationEvent
+
+	if err := json.Unmarshal(data, &formatted); err != nil {
+		return err
+	}
+
+	if !formatted.IsDeath {
+		return errors.New("not a death event")
+	}
+
+	*e = DieMutationEvent{
+		value: formatted.Message,
+	}
+
+	return nil
+}
+
+func UnmarshalMutationEvent(data []byte) (Event, error) {
+	type action struct {
+		Message string `json:"message"`
+		IsDeath bool   `json:"isDeath"`
+	}
+
+	var loaded action
+
+	if err := json.Unmarshal(data, &loaded); err != nil {
+		return nil, err
+	}
+
+	if loaded.IsDeath {
+		return DieMutationEvent{value: loaded.Message}, nil
+	}
+
+	return LiveMutationEvent{value: loaded.Message}, nil
 }
 
 func LoadMutations(b []byte) ([]LiveMutationEvent, []DieMutationEvent, error) {
@@ -60,4 +108,38 @@ type LiveMutationEvent struct {
 
 func (e LiveMutationEvent) String() string {
 	return e.value
+}
+
+func (e LiveMutationEvent) MarshalJSON() ([]byte, error) {
+	formatted := jsonMutationEvent{
+		Type:    string(EventTypeMutation),
+		Message: e.value,
+		IsDeath: false,
+	}
+
+	return json.Marshal(formatted)
+}
+
+func (e *LiveMutationEvent) UnmarshalJSON(data []byte) error {
+	var formatted jsonMutationEvent
+
+	if err := json.Unmarshal(data, &formatted); err != nil {
+		return err
+	}
+
+	if formatted.IsDeath {
+		return errors.New("not a live event")
+	}
+
+	*e = LiveMutationEvent{
+		value: formatted.Message,
+	}
+
+	return nil
+}
+
+type jsonMutationEvent struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+	IsDeath bool   `json:"isDeath"`
 }
