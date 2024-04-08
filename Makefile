@@ -21,15 +21,22 @@ benchmark: dependencies fmt
 fmt:
 	gofmt -w .
 
+generate: gen-grpc gen-grpc-multiverse
+
 gen-grpc:
 	protoc --go_out=. --go_opt=paths=source_relative \
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
-		pkg/multiverse/service/service.proto
+		pkg/proto/core/core.proto
+
+gen-grpc-multiverse:
+	protoc --go_out=. --go_opt=paths=source_relative \
+		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
+		pkg/proto/multiverse/multiverse.proto
 
 build: gen-grpc
 	go build -o $(GOBIN)/$(APP) ./cmd/$(APP)/*.go || exit
 
-build-multiverse: gen-grpc
+build-multiverse: gen-grpc-multiverse
 	go build -o $(GOBIN)/$(MUL) ./cmd/$(MUL)/*.go || exit
 
 build-all: fmt test build build-multiverse

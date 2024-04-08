@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 
-	deadenz "github.com/ciphermountain/deadenz/pkg"
+	"github.com/ciphermountain/deadenz/pkg/components"
 )
 
-func NewFindEvent(item deadenz.Item) Event {
+func NewFindEvent(item components.Item) components.Event {
 	return FindEvent{Item: item}
 }
 
 type FindEvent struct {
-	Item deadenz.Item
+	Item components.Item
 }
 
 func (e FindEvent) String() string {
@@ -21,12 +21,12 @@ func (e FindEvent) String() string {
 
 func (e FindEvent) MarshalJSON() ([]byte, error) {
 	type event struct {
-		Type string       `json:"type"`
-		Item deadenz.Item `json:"item"`
+		Type string          `json:"type"`
+		Item components.Item `json:"item"`
 	}
 
 	formatted := event{
-		Type: string(EventTypeFind),
+		Type: string(components.EventTypeFind),
 		Item: e.Item,
 	}
 
@@ -35,7 +35,7 @@ func (e FindEvent) MarshalJSON() ([]byte, error) {
 
 func (e *FindEvent) UnmarshalJSON(data []byte) error {
 	type event struct {
-		Item deadenz.Item `json:"item"`
+		Item components.Item `json:"item"`
 	}
 
 	var formatted event

@@ -1,0 +1,90 @@
+[
+	{
+    "message": "you die instantly",
+    "isDeath": true
+  },
+	{
+    "message": "you die and become a ghost",
+    "isDeath": true
+  },
+	{
+    "message": "you die of dysentery",
+    "isDeath": true
+  },
+	{
+    "message": "you get eaten ... and die",
+    "isDeath": true
+  },
+	{
+    "message": "you die from contemplating incongruencias in the space time continuum",
+    "isDeath": true
+  },
+	{
+    "message": "you die from crossing your eyes to impress your friends one too many times",
+    "isDeath": true
+  },
+	{
+    "message": "you get abducted by aliens and never return to your home planet; you’re as good as dead",
+    "isDeath": true
+  },
+	{
+    "message": "you and all the other yous in the multiverse die",
+    "isDeath": true
+  },
+	{
+    "message": "you explode … and die",
+    "isDeath": true
+  },
+	{
+    "message": "you implode … and die",
+    "isDeath": true
+  },
+	{
+    "message": "you get swallowed by quicksand and die",
+    "isDeath": true
+  },
+	{
+    "message": "you stub your toe in the dark and die",
+    "isDeath": true
+  },
+	{
+    "message": "you die by the sting of 1000 bees",
+    "isDeath": true
+  },
+	{
+    "message": "you find a bone in your hot dog and die",
+    "isDeath": true
+  },
+	{
+    "message": "you experience a cuteness overload and die",
+    "isDeath": true
+  },
+	{
+    "message": "you die from an epic rugpull",
+    "isDeath": true
+  },
+	{
+    "message": "you die of starvation thinking of ways to die",
+    "isDeath": true
+  },
+	{
+    "message": "you die of old age",
+    "isDeath": true
+  },
+	{
+    "message": "you die of young age",
+    "isDeath": true
+  },
+	{
+    "message": "you die from a medieval executioner",
+    "isDeath": true
+  },
+	{
+    "message": "you die of measles",
+    "isDeath": true
+  },
+	{
+    "message": "you die and the grim reaper haunts you forever",
+    "isDeath": true
+  }
+]

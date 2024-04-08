@@ -3,6 +3,8 @@ package events
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/ciphermountain/deadenz/pkg/components"
 )
 
 func LoadEncounterEvents(b []byte) ([]EncounterEvent, error) {
@@ -42,7 +44,7 @@ func (e EncounterEvent) MarshalJSON() ([]byte, error) {
 	}
 
 	formatted := event{
-		Type:    string(EventTypeEncounter),
+		Type:    string(components.EventTypeEncounter),
 		Message: e.value,
 	}
 

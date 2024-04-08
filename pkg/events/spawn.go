@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 
-	deadenz "github.com/ciphermountain/deadenz/pkg"
+	"github.com/ciphermountain/deadenz/pkg/components"
 )
 
-func NewCharacterSpawnEvent(character deadenz.Character) Event {
+func NewCharacterSpawnEvent(character components.Character) components.Event {
 	return &CharacterSpawnEvent{
 		character: character}
 }
 
 type CharacterSpawnEvent struct {
-	character deadenz.Character
+	character components.Character
 }
 
 func (e CharacterSpawnEvent) String() string {
@@ -39,7 +39,7 @@ type typer struct {
 	Data *json.RawMessage `json:"data"`
 }
 
-func NewEarnedXPEvent(xp uint) Event {
+func NewEarnedXPEvent(xp uint) components.Event {
 	return &EarnedXPEvent{xp: xp}
 }
 
@@ -51,7 +51,7 @@ func (e EarnedXPEvent) String() string {
 	return fmt.Sprintf("you earned %d xp", e.xp)
 }
 
-func NewEarnedTokenEvent(xp uint) Event {
+func NewEarnedTokenEvent(xp uint) components.Event {
 	return &EarnedTokenEvent{xp: xp}
 }
 

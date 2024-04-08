@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "github.com/ciphermountain/deadenz/pkg/multiverse/service";
+
+package multiverse;
+
+service Multiverse {
+    rpc PublishEvent(Event) returns (Response) {}
+
+    rpc Events(Filter) returns (stream Event) {}
+}
+
+message Event {
+    bytes data = 1;
+}
+
+message Filter {}
+
+message Response {}

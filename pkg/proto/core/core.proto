@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+option go_package = "github.com/ciphermountain/deadenz/pkg/core";
+
+package core;
+
+service Deadenz {
+    rpc Run(RunRequest) returns (RunResponse) {}
+    rpc Load(LoadRequest) returns (Response) {}
+    rpc Assets(AssetRequest) returns (AssetResponse) {}
+}
+
+message RunRequest {
+    Profile profile = 1;
+
+    oneof command {
+        WalkCommand walk = 2;
+        SpawninCommand spawnin = 3;
+    };
+}
+
+message WalkCommand {}
+
+message SpawninCommand {}
+
+message LoadRequest {
+    AssetType type = 1;
+
+    oneof loader {
+        FileLoader fileLoader = 2;
+        SQLLoader sqlLoader = 3;
+    }
+}
+
+message FileLoader {
+    string path = 1;
+}
+
+message SQLLoader {
+    string dsn = 1;
+}
+
+message AssetRequest {
+    AssetType type = 1;
+}
+
+message RunResponse {
+    Response response = 1;
+    Profile profile = 2;
+    repeated string events = 3;
+}
+
+enum Status {
+    // option allow_alias = true;
+    OK = 0;
+    Failure = 1;
+}
+
+enum AssetType {
+    ItemAsset = 0;
+    CharacterAsset = 1;
+    ItemDecisionAsset = 2;
+    ActionAsset = 3;
+    LiveMutationAsset = 4;
+    DieMutationAsset = 5;
+    EncounterAsset = 6;
+}
+
+message Response {
+    Status status = 1;
+    string message = 2;
+}
+
+message Profile {
+    string uuid = 1;
+    uint64 xp = 2;
+    uint64 currency = 3;
+    optional Character active = 4;
+    optional uint64 activeItem = 5;
+    uint32 backpackLimit = 6;
+    repeated uint64 backpack = 7;
+    Stats stats = 8;
+}
+
+message Item {
+    uint64 type = 1;
+    string name = 2;
+}
+
+message Character {
+    uint64 type = 1;
+    string name = 2;
+    uint32 multiplier = 3;
+}
+
+message Stats {
+    int32 wit = 1;
+    int32 skill = 2;
+    int32 humor = 3;
+}
+
+message AssetResponse {
+    Response response = 1;
+
+    oneof asset {
+        ItemAssetResponse item = 2;
+        CharacterAssetResponse character = 3;
+    }
+}
+
+message ItemAssetResponse {
+    repeated Item items = 1;
+}
+
+message CharacterAssetResponse {
+    repeated Character characters = 1;
+}

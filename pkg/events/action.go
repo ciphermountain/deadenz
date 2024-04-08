@@ -2,6 +2,8 @@ package events
 
 import (
 	"encoding/json"
+
+	"github.com/ciphermountain/deadenz/pkg/components"
 )
 
 func LoadActionEvents(b []byte) ([]ActionEvent, error) {
@@ -30,7 +32,7 @@ func (e ActionEvent) MarshalJSON() ([]byte, error) {
 	}
 
 	formatted := action{
-		Type:    string(EventTypeAction),
+		Type:    string(components.EventTypeAction),
 		Message: e.value,
 	}
 

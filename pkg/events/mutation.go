@@ -5,11 +5,12 @@ import (
 	"errors"
 
 	"github.com/ciphermountain/deadenz/internal/util"
+	"github.com/ciphermountain/deadenz/pkg/components"
 )
 
 const DefaultDieRate = 30
 
-func NewRandomMutationEvent(live []LiveMutationEvent, die []DieMutationEvent, diePercent int64) Event {
+func NewRandomMutationEvent(live []LiveMutationEvent, die []DieMutationEvent, diePercent int64) components.Event {
 	if util.Random(0, 100) < diePercent {
 		return die[util.Random(0, int64(len(die)-1))]
 	}
@@ -21,13 +22,19 @@ type DieMutationEvent struct {
 	value string
 }
 
+func NewDieMutationEvent(value string) DieMutationEvent {
+	return DieMutationEvent{
+		value: value,
+	}
+}
+
 func (e DieMutationEvent) String() string {
 	return e.value
 }
 
 func (e DieMutationEvent) MarshalJSON() ([]byte, error) {
 	formatted := jsonMutationEvent{
-		Type:    string(EventTypeMutation),
+		Type:    string(components.EventTypeMutation),
 		Message: e.value,
 		IsDeath: true,
 	}
@@ -51,25 +58,6 @@ func (e *DieMutationEvent) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
-}
-
-func UnmarshalMutationEvent(data []byte) (Event, error) {
-	type action struct {
-		Message string `json:"message"`
-		IsDeath bool   `json:"isDeath"`
-	}
-
-	var loaded action
-
-	if err := json.Unmarshal(data, &loaded); err != nil {
-		return nil, err
-	}
-
-	if loaded.IsDeath {
-		return DieMutationEvent{value: loaded.Message}, nil
-	}
-
-	return LiveMutationEvent{value: loaded.Message}, nil
 }
 
 func LoadMutations(b []byte) ([]LiveMutationEvent, []DieMutationEvent, error) {
@@ -106,13 +94,19 @@ type LiveMutationEvent struct {
 	value string
 }
 
+func NewLiveMutationEvent(value string) LiveMutationEvent {
+	return LiveMutationEvent{
+		value: value,
+	}
+}
+
 func (e LiveMutationEvent) String() string {
 	return e.value
 }
 
 func (e LiveMutationEvent) MarshalJSON() ([]byte, error) {
 	formatted := jsonMutationEvent{
-		Type:    string(EventTypeMutation),
+		Type:    string(components.EventTypeMutation),
 		Message: e.value,
 		IsDeath: false,
 	}
