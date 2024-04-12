@@ -11,18 +11,21 @@ import (
 	"github.com/ciphermountain/deadenz/pkg/components"
 	"github.com/ciphermountain/deadenz/pkg/parse"
 	proto "github.com/ciphermountain/deadenz/pkg/proto/core"
+	"github.com/ciphermountain/deadenz/pkg/service/multiverse"
 )
 
 var _ proto.DeadenzServer = &Server{}
 
 type Server struct {
 	proto.UnimplementedDeadenzServer
-	loader *util.DataLoader
+	loader     *util.DataLoader
+	multiverse *multiverse.Client
 }
 
-func NewServer() *Server {
+func NewServer(client *multiverse.Client) *Server {
 	return &Server{
-		loader: util.NewDataLoader(),
+		loader:     util.NewDataLoader(),
+		multiverse: client,
 	}
 }
 
@@ -46,7 +49,7 @@ func (s *Server) Run(ctx context.Context, req *proto.RunRequest) (*proto.RunResp
 
 	profile := protoToProfile(req.GetProfile())
 
-	result, err := deadenz.RunActionCommand(command, profile, s.loader)
+	result, err := deadenz.RunActionCommand(command, profile, s.loader, s.multiverse)
 	if err != nil {
 		return &proto.RunResponse{
 			Response: &proto.Response{

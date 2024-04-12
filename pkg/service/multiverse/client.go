@@ -9,11 +9,11 @@ import (
 	proto "github.com/ciphermountain/deadenz/pkg/proto/multiverse"
 )
 
-type MultiverseClient struct {
+type Client struct {
 	grpcClient proto.MultiverseClient
 }
 
-func NewMultiverseClient(addr string) (*MultiverseClient, error) {
+func NewClient(addr string) (*Client, error) {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
@@ -23,18 +23,18 @@ func NewMultiverseClient(addr string) (*MultiverseClient, error) {
 		return nil, err
 	}
 
-	return &MultiverseClient{
+	return &Client{
 		grpcClient: proto.NewMultiverseClient(conn),
 	}, nil
 }
 
-func (c *MultiverseClient) PublishEvent(ctx context.Context, in *proto.Event) error {
+func (c *Client) PublishEvent(ctx context.Context, in *proto.Event) error {
 	_, err := c.grpcClient.PublishEvent(ctx, in)
 
 	return err
 }
 
-func (c *MultiverseClient) NewEventsStreamReader(ctx context.Context) (*EventsReader, error) {
+func (c *Client) NewEventsStreamReader(ctx context.Context) (*EventsReader, error) {
 	events, err := c.grpcClient.Events(ctx, &proto.Filter{})
 	if err != nil {
 		return nil, err

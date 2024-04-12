@@ -1,9 +1,14 @@
 package deadenz
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/events"
+	proto "github.com/ciphermountain/deadenz/pkg/proto/multiverse"
+	"github.com/ciphermountain/deadenz/pkg/service/multiverse"
 )
 
 var ErrUnrecognizedCommand = errors.New("unrecognized command")
@@ -15,7 +20,7 @@ type Result struct {
 	Events     []components.Event
 }
 
-func RunActionCommand(command CommandType, profile components.Profile, loader Loader) (Result, error) {
+func RunActionCommand(command CommandType, profile components.Profile, loader Loader, client *multiverse.Client) (Result, error) {
 	var step Result
 
 	switch command {
@@ -36,21 +41,9 @@ func RunActionCommand(command CommandType, profile components.Profile, loader Lo
 			return step, err
 		}
 
-		/*
-			for _, evt := range evts {
-				switch evt.(type) {
-				case events.DieMutationEvent:
-					bts, err := json.Marshal(evt)
-					if err != nil {
-						continue
-					}
-
-					client.PublishEvent(context.Background(), &service.Event{
-						Data: bts,
-					})
-				}
-			}
-		*/
+		if client != nil {
+			publishEvents(step.Events, client)
+		}
 
 		step.DefaultCmd = WalkCommandType
 
@@ -62,4 +55,20 @@ func RunActionCommand(command CommandType, profile components.Profile, loader Lo
 	}
 
 	return step, nil
+}
+
+func publishEvents(evts []components.Event, client *multiverse.Client) {
+	for _, evt := range evts {
+		switch evt.(type) {
+		case events.DieMutationEvent, events.CharacterSpawnEvent: // only spawn and die events are supported
+			bts, err := json.Marshal(evt)
+			if err != nil {
+				continue
+			}
+
+			client.PublishEvent(context.Background(), &proto.Event{
+				Data: bts,
+			})
+		}
+	}
 }

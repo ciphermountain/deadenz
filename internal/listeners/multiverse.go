@@ -10,13 +10,13 @@ import (
 )
 
 type MultiverseMessageListener struct {
-	client *multiverse.MultiverseClient
+	client *multiverse.Client
 
 	reader   *multiverse.EventsReader
 	chEvents chan components.Event
 }
 
-func NewMultiverseMessageListener(client *multiverse.MultiverseClient) (*MultiverseMessageListener, error) {
+func NewMultiverseMessageListener(client *multiverse.Client) (*MultiverseMessageListener, error) {
 	reader, err := client.NewEventsStreamReader(context.Background())
 	if err != nil {
 		return nil, err

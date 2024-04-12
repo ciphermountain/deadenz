@@ -62,7 +62,7 @@ func (c *CoreClient) Items(ctx context.Context) ([]components.Item, error) {
 		Type: proto.AssetType_ItemAsset,
 	}
 
-	resp, err := c.grpcClient.Assets(ctx, req, nil)
+	resp, err := c.grpcClient.Assets(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (c *CoreClient) Characters(ctx context.Context) ([]components.Character, er
 		Type: proto.AssetType_ItemAsset,
 	}
 
-	resp, err := c.grpcClient.Assets(ctx, req, nil)
+	resp, err := c.grpcClient.Assets(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (c *CoreClient) run(
 	profile components.Profile,
 	req *proto.RunRequest,
 ) ([]string, components.Profile, error) {
-	resp, err := c.grpcClient.Run(ctx, req, nil)
+	resp, err := c.grpcClient.Run(ctx, req)
 	if err != nil {
 		return nil, profile, err
 	}

@@ -26,6 +26,7 @@ func NewCommandEvent(
 ) *CommandEvent {
 	listener := &CommandEvent{
 		reader:         bufio.NewReader(os.Stdin),
+		commands:       commands,
 		chCommands:     make(chan deadenz.CommandType, 1),
 		chPrompt:       make(chan struct{}, 1),
 		defaultCommand: defaultCommand,
