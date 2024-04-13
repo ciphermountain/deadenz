@@ -12,14 +12,14 @@ import (
 	proto "github.com/ciphermountain/deadenz/pkg/proto/core"
 )
 
-type CoreClient struct {
+type Client struct {
 	conn       *grpc.ClientConn
 	grpcClient proto.DeadenzClient
 
 	closer sync.Once
 }
 
-func NewCoreClient(addr string) (*CoreClient, error) {
+func NewClient(addr string) (*Client, error) {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
@@ -29,13 +29,13 @@ func NewCoreClient(addr string) (*CoreClient, error) {
 		return nil, err
 	}
 
-	return &CoreClient{
+	return &Client{
 		conn:       conn,
 		grpcClient: proto.NewDeadenzClient(conn),
 	}, nil
 }
 
-func (c *CoreClient) Spawnin(ctx context.Context, profile components.Profile) ([]string, components.Profile, error) {
+func (c *Client) Spawnin(ctx context.Context, profile components.Profile) ([]string, components.Profile, error) {
 	req := &proto.RunRequest{
 		Command: &proto.RunRequest_Spawnin{
 			Spawnin: &proto.SpawninCommand{},
@@ -46,7 +46,7 @@ func (c *CoreClient) Spawnin(ctx context.Context, profile components.Profile) ([
 	return c.run(ctx, profile, req)
 }
 
-func (c *CoreClient) Walk(ctx context.Context, profile components.Profile) ([]string, components.Profile, error) {
+func (c *Client) Walk(ctx context.Context, profile components.Profile) ([]string, components.Profile, error) {
 	req := &proto.RunRequest{
 		Command: &proto.RunRequest_Walk{
 			Walk: &proto.WalkCommand{},
@@ -57,7 +57,7 @@ func (c *CoreClient) Walk(ctx context.Context, profile components.Profile) ([]st
 	return c.run(ctx, profile, req)
 }
 
-func (c *CoreClient) Items(ctx context.Context) ([]components.Item, error) {
+func (c *Client) Items(ctx context.Context) ([]components.Item, error) {
 	req := &proto.AssetRequest{
 		Type: proto.AssetType_ItemAsset,
 	}
@@ -79,7 +79,7 @@ func (c *CoreClient) Items(ctx context.Context) ([]components.Item, error) {
 	}
 }
 
-func (c *CoreClient) Characters(ctx context.Context) ([]components.Character, error) {
+func (c *Client) Characters(ctx context.Context) ([]components.Character, error) {
 	req := &proto.AssetRequest{
 		Type: proto.AssetType_ItemAsset,
 	}
@@ -101,7 +101,7 @@ func (c *CoreClient) Characters(ctx context.Context) ([]components.Character, er
 	}
 }
 
-func (c *CoreClient) Close() error {
+func (c *Client) Close() error {
 	var err error
 
 	c.closer.Do(func() {
@@ -111,7 +111,7 @@ func (c *CoreClient) Close() error {
 	return err
 }
 
-func (c *CoreClient) run(
+func (c *Client) run(
 	ctx context.Context,
 	profile components.Profile,
 	req *proto.RunRequest,

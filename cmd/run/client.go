@@ -22,7 +22,7 @@ var (
 			addr := fmt.Sprintf("%s:%d", host, port)
 
 			// create grpc client
-			client, err := core.NewCoreClient(addr)
+			client, err := core.NewClient(addr)
 			if err != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "no client connection: %s", err.Error())
 				os.Exit(1)
@@ -85,7 +85,7 @@ var (
 
 func runActionCommand(
 	cmd *cobra.Command,
-	client *core.CoreClient,
+	client *core.Client,
 	input deadenz.CommandType,
 	profile components.Profile,
 ) *deadenz.CommandType {
@@ -125,7 +125,7 @@ func runActionCommand(
 
 func runDataReadCommand(
 	cmd *cobra.Command,
-	client *core.CoreClient,
+	client *core.Client,
 	input deadenz.CommandType,
 	profile components.Profile,
 ) {
