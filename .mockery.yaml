@@ -1,0 +1,13 @@
+with-expecter: true
+filename: "mock_{{.InterfaceName}}.go"
+dir: "{{.InterfaceDirRelative}}/mocks"
+outpkg: "mocks"
+mockname: "Mock{{.InterfaceName}}"
+packages:
+  github.com/ciphermountain/deadenz/internal/util:
+    # place your package-specific config here
+    config:
+    interfaces:
+      # select the interfaces you want mocked
+      Loader:
+        config:

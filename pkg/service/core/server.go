@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"reflect"
 
 	"github.com/ciphermountain/deadenz/internal/util"
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/events"
 	"github.com/ciphermountain/deadenz/pkg/parse"
 	proto "github.com/ciphermountain/deadenz/pkg/proto/core"
 	"github.com/ciphermountain/deadenz/pkg/service/multiverse"
@@ -70,16 +72,32 @@ func (s *Server) Run(ctx context.Context, req *proto.RunRequest) (*proto.RunResp
 }
 
 func (s *Server) Load(_ context.Context, req *proto.LoadRequest) (*proto.Response, error) {
-	var parser util.Parser
+	var (
+		key    reflect.Type
+		parser util.Parser
+	)
 
 	switch req.GetType() {
 	case proto.AssetType_ItemAsset:
+		key = itemType
 		parser = decodeItems
 	case proto.AssetType_CharacterAsset:
+		key = characterType
 		parser = decodeCharacters
-	case proto.AssetType_ItemDecisionAsset, proto.AssetType_ActionAsset, proto.AssetType_EncounterAsset:
+	case proto.AssetType_ItemDecisionAsset:
+		key = decType
 		parser = json.Unmarshal
-	case proto.AssetType_LiveMutationAsset, proto.AssetType_DieMutationAsset:
+	case proto.AssetType_ActionAsset:
+		key = actionType
+		parser = json.Unmarshal
+	case proto.AssetType_EncounterAsset:
+		key = encType
+		parser = json.Unmarshal
+	case proto.AssetType_LiveMutationAsset:
+		key = liveType
+		parser = json.Unmarshal
+	case proto.AssetType_DieMutationAsset:
+		key = dieType
 		parser = json.Unmarshal
 	default:
 		return &proto.Response{
@@ -96,7 +114,7 @@ func (s *Server) Load(_ context.Context, req *proto.LoadRequest) (*proto.Respons
 		}, nil
 	}
 
-	if err := s.loader.SetLoader(itemType, loader, parser); err != nil {
+	if err := s.loader.SetLoader(key, loader, parser); err != nil {
 		return &proto.Response{
 			Status:  proto.Status_Failure,
 			Message: err.Error(),
@@ -110,6 +128,8 @@ func (s *Server) Assets(ctx context.Context, req *proto.AssetRequest) (*proto.As
 	switch req.GetType() {
 	case proto.AssetType_ItemAsset:
 		var items []components.Item
+
+		log.Println("getting item assets")
 
 		if err := s.loader.LoadCtx(ctx, &items); err != nil {
 			resp := &proto.AssetResponse{
@@ -136,6 +156,8 @@ func (s *Server) Assets(ctx context.Context, req *proto.AssetRequest) (*proto.As
 		return resp, nil
 	case proto.AssetType_CharacterAsset:
 		var characters []components.Character
+
+		log.Println("getting character assets")
 
 		if err := s.loader.LoadCtx(ctx, &characters); err != nil {
 			resp := &proto.AssetResponse{
@@ -173,7 +195,13 @@ func (s *Server) Assets(ctx context.Context, req *proto.AssetRequest) (*proto.As
 }
 
 var (
-	itemType = reflect.TypeOf([]components.Item{})
+	itemType      = reflect.TypeOf([]components.Item{})
+	characterType = reflect.TypeOf([]components.Character{})
+	decType       = reflect.TypeOf([]events.ItemDecisionEvent{})
+	actionType    = reflect.TypeOf([]events.ActionEvent{})
+	encType       = reflect.TypeOf([]events.EncounterEvent{})
+	liveType      = reflect.TypeOf([]events.LiveMutationEvent{})
+	dieType       = reflect.TypeOf([]events.DieMutationEvent{})
 )
 
 func decodeItems(data []byte, val any) error {

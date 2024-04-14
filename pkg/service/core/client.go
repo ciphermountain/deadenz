@@ -68,7 +68,7 @@ func (c *Client) Items(ctx context.Context) ([]components.Item, error) {
 	}
 
 	if resp.Response.Status != proto.Status_OK {
-		return nil, fmt.Errorf("service returned an unsucessful response: %s", resp.Response.Message)
+		return nil, fmt.Errorf("service returned an unsuccessful response: %s", resp.Response.Message)
 	}
 
 	switch asset := resp.Asset.(type) {
@@ -81,7 +81,7 @@ func (c *Client) Items(ctx context.Context) ([]components.Item, error) {
 
 func (c *Client) Characters(ctx context.Context) ([]components.Character, error) {
 	req := &proto.AssetRequest{
-		Type: proto.AssetType_ItemAsset,
+		Type: proto.AssetType_CharacterAsset,
 	}
 
 	resp, err := c.grpcClient.Assets(ctx, req)
@@ -90,7 +90,7 @@ func (c *Client) Characters(ctx context.Context) ([]components.Character, error)
 	}
 
 	if resp.Response.Status != proto.Status_OK {
-		return nil, fmt.Errorf("service returned an unsucessful response: %s", resp.Response.Message)
+		return nil, fmt.Errorf("service returned an unsuccessful response: %s", resp.Response.Message)
 	}
 
 	switch asset := resp.Asset.(type) {

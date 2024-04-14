@@ -40,7 +40,10 @@ func (l *DataLoader) SetLoader(key reflect.Type, loader Loader, parser Parser, o
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	config := loadConfig{}
+	config := loadConfig{
+		parser: parser,
+		loader: loader,
+	}
 
 	for _, opt := range opts {
 		opt(&config)
@@ -63,7 +66,7 @@ func (l *DataLoader) LoadCtx(ctx context.Context, value any) error {
 	tp := reflect.Indirect(val).Type()
 
 	if data, exists := l.data[tp]; exists {
-		reflect.Indirect(val).Set(reflect.ValueOf(data))
+		reflect.Indirect(val).Set(reflect.Indirect(reflect.ValueOf(data)))
 
 		return nil
 	}
@@ -82,13 +85,11 @@ func (l *DataLoader) LoadCtx(ctx context.Context, value any) error {
 		return err
 	}
 
-	data := reflect.Indirect(reflect.New(tp)).Interface()
-	if err := config.parser(bts, &data); err != nil {
+	if err := config.parser(bts, value); err != nil {
 		return err
 	}
 
-	l.data[tp] = data
-	reflect.Indirect(val).Set(reflect.ValueOf(data))
+	l.data[tp] = value
 
 	return nil
 }
