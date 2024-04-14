@@ -56,7 +56,7 @@ func Walk(profile components.Profile, loader Loader) (components.Profile, []comp
 EventLoop:
 	for _, evt := range evts {
 		switch evt.(type) {
-		case *events.DieMutationEvent:
+		case events.DieMutationEvent:
 			profile = deathEventMiddleware(profile)
 
 			// TODO: what about conflicting events?

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"reflect"
 
 	"github.com/ciphermountain/deadenz/internal/util"
@@ -129,8 +128,6 @@ func (s *Server) Assets(ctx context.Context, req *proto.AssetRequest) (*proto.As
 	case proto.AssetType_ItemAsset:
 		var items []components.Item
 
-		log.Println("getting item assets")
-
 		if err := s.loader.LoadCtx(ctx, &items); err != nil {
 			resp := &proto.AssetResponse{
 				Response: &proto.Response{
@@ -156,8 +153,6 @@ func (s *Server) Assets(ctx context.Context, req *proto.AssetRequest) (*proto.As
 		return resp, nil
 	case proto.AssetType_CharacterAsset:
 		var characters []components.Character
-
-		log.Println("getting character assets")
 
 		if err := s.loader.LoadCtx(ctx, &characters); err != nil {
 			resp := &proto.AssetResponse{

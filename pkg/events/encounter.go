@@ -2,7 +2,6 @@ package events
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
 )
@@ -34,7 +33,7 @@ type EncounterEvent struct {
 }
 
 func (e EncounterEvent) String() string {
-	return fmt.Sprintf("you encounter %s", e.value)
+	return e.value
 }
 
 func (e EncounterEvent) MarshalJSON() ([]byte, error) {
