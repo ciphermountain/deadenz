@@ -80,6 +80,7 @@ message Profile {
     uint32 backpackLimit = 6;
     repeated uint64 backpack = 7;
     Stats stats = 8;
+    optional Limits limits = 9;
 }
 
 message Item {
@@ -97,6 +98,11 @@ message Stats {
     int32 wit = 1;
     int32 skill = 2;
     int32 humor = 3;
+}
+
+message Limits {
+	int64 lastWalk = 1;
+	string walkCount = 2;
 }
 
 message AssetResponse {

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
+	"time"
 
 	"github.com/ciphermountain/deadenz/internal/util"
 	deadenz "github.com/ciphermountain/deadenz/pkg"
@@ -244,6 +246,7 @@ func protoToProfile(profile *proto.Profile) components.Profile {
 		BackpackLimit: uint8(profile.BackpackLimit),
 		Backpack:      protoToBackpack(profile.Backpack),
 		Stats:         protoToStats(profile.Stats),
+		Limits:        protoToLimits(profile.Limits),
 	}
 }
 
@@ -257,6 +260,7 @@ func profileToProto(profile components.Profile) *proto.Profile {
 		BackpackLimit: uint32(profile.BackpackLimit),
 		Backpack:      backpackToProto(profile.Backpack),
 		Stats:         statsToProto(profile.Stats),
+		Limits:        limitsToProto(profile.Limits),
 	}
 }
 
@@ -345,6 +349,33 @@ func protoToStats(stats *proto.Stats) components.Stats {
 		Wit:   int(stats.GetWit()),
 		Skill: int(stats.GetSkill()),
 		Humor: int(stats.GetHumor()),
+	}
+}
+
+func protoToLimits(limits *proto.Limits) *components.Limits {
+	if limits == nil {
+		return nil
+	}
+
+	val, err := strconv.ParseUint(limits.WalkCount, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return &components.Limits{
+		LastWalk:  time.UnixMilli(limits.LastWalk),
+		WalkCount: val,
+	}
+}
+
+func limitsToProto(limits *components.Limits) *proto.Limits {
+	if limits == nil {
+		return nil
+	}
+
+	return &proto.Limits{
+		LastWalk:  limits.LastWalk.UnixMilli(),
+		WalkCount: strconv.FormatUint(limits.WalkCount, 10),
 	}
 }
 
