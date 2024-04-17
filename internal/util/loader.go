@@ -18,8 +18,8 @@ type Loader interface {
 type LoaderOpt func(conf *loadConfig)
 
 type DataLoader struct {
-	mu      sync.RWMutex
-	data    map[reflect.Type]any
+	mu sync.RWMutex
+	// data    map[reflect.Type]any
 	configs map[reflect.Type]*loadConfig
 
 	starter sync.Once
@@ -30,7 +30,7 @@ type DataLoader struct {
 
 func NewDataLoader() *DataLoader {
 	return &DataLoader{
-		data:    make(map[reflect.Type]any),
+		// data:    make(map[reflect.Type]any),
 		configs: make(map[reflect.Type]*loadConfig),
 		chClose: make(chan struct{}, 1),
 	}
@@ -65,11 +65,13 @@ func (l *DataLoader) LoadCtx(ctx context.Context, value any) error {
 	val := reflect.ValueOf(value)
 	tp := reflect.Indirect(val).Type()
 
-	if data, exists := l.data[tp]; exists {
-		reflect.Indirect(val).Set(reflect.Indirect(reflect.ValueOf(data)))
+	/*
+		if data, exists := l.data[tp]; exists {
+			reflect.Indirect(val).Set(reflect.Indirect(reflect.ValueOf(data)))
 
-		return nil
-	}
+			return nil
+		}
+	*/
 
 	config, exists := l.configs[tp]
 	if !exists || config.loader == nil {
@@ -89,7 +91,7 @@ func (l *DataLoader) LoadCtx(ctx context.Context, value any) error {
 		return err
 	}
 
-	l.data[tp] = value
+	// l.data[tp] = value
 
 	return nil
 }
@@ -126,11 +128,6 @@ func (l *DataLoader) run() {
 			return
 		}
 	}
-}
-
-func (l *DataLoader) runConfig(config *loadConfig) *loadConfig {
-
-	return nil
 }
 
 type loadConfig struct {

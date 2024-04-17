@@ -1,4 +1,6 @@
 [
+  {"name": "a locker", "usable": {"save_backpack_items": 10}},
+  {"name": "a walking stick", "usable": {"improves_walking": true}},
   {"name": "a sandwich"},
   {"name": "a ruby"},
   {"name": "a sword"},

@@ -18,12 +18,6 @@ func Walk(profile components.Profile, loader Loader) (components.Profile, []comp
 		return profile, nil, ErrNotSpawnedIn
 	}
 
-	if profile.ActiveItem != nil && *profile.ActiveItem == components.WalkingStick {
-		profile.Stats = components.NewWalkingStick().Mutate(profile.Stats)
-	}
-
-	// TODO: apply multiverse death filter
-
 	which := util.Random(0, 100)
 
 	var nextFunc func(components.Profile, Loader) (components.Profile, []components.Event, error)
@@ -52,19 +46,6 @@ func Walk(profile components.Profile, loader Loader) (components.Profile, []comp
 	profile.XP = profile.XP + uint(profile.Active.Multiplier)
 	profile.Currency = profile.Currency + uint(profile.Active.Multiplier*3)
 
-	// if any event is a death event, remove active character and apply backpack recovery
-EventLoop:
-	for _, evt := range evts {
-		switch evt.(type) {
-		case events.DieMutationEvent:
-			profile = deathEventMiddleware(profile)
-
-			// TODO: what about conflicting events?
-			// short circuit on death
-			break EventLoop
-		}
-	}
-
 	return profile, evts, nil
 }
 
@@ -92,7 +73,7 @@ func findItem(profile components.Profile, loader Loader) (components.Profile, []
 	dec := decisions[util.Random(0, int64(len(decisions)-1))]
 	if dec.AddToBackpack() {
 		// do the add to backpack
-		profile, err = addToBackpackMiddleware(profile, randomItem)
+		profile, err = addToBackpack(profile, randomItem)
 		if err != nil {
 			return profile, evts, err
 		}
@@ -155,26 +136,7 @@ func mutation(profile components.Profile, loader Loader) (components.Profile, []
 	return profile, evts, nil
 }
 
-func deathEventMiddleware(profile components.Profile) components.Profile {
-	profile.Active = nil
-
-	backpack := []components.ItemType{}
-
-	// a locker allows the backpack items to be recovered
-	if profile.ActiveItem != nil && *profile.ActiveItem == components.Locker {
-		profile.Stats = components.NewLocker().Mutate(profile.Stats)
-		profile.ActiveItem = nil
-
-		// backpack recovery
-		backpack = profile.Backpack
-	}
-
-	profile.Backpack = backpack
-
-	return profile
-}
-
-func addToBackpackMiddleware(profile components.Profile, item components.Item) (components.Profile, error) {
+func addToBackpack(profile components.Profile, item components.Item) (components.Profile, error) {
 	if len(profile.Backpack) < int(profile.BackpackLimit) {
 		profile.Backpack = append([]components.ItemType{item.Type}, profile.Backpack...)
 	} else {

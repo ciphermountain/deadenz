@@ -1,14 +1,9 @@
 package deadenz
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
-	"github.com/ciphermountain/deadenz/pkg/events"
-	proto "github.com/ciphermountain/deadenz/pkg/proto/multiverse"
-	"github.com/ciphermountain/deadenz/pkg/service/multiverse"
 )
 
 var ErrUnrecognizedCommand = errors.New("unrecognized command")
@@ -20,8 +15,29 @@ type Result struct {
 	Events     []components.Event
 }
 
-func RunActionCommand(command CommandType, profile components.Profile, loader Loader, client *multiverse.Client) (Result, error) {
+// PreRunFunc can read a profile, modify and return it.
+type PreRunFunc func(CommandType, components.Profile) (components.Profile, error)
+
+// PreRunFunc can read a profile with events, modify the profile, and return it.
+type PostRunFunc func(CommandType, components.Profile, []components.Event) (components.Profile, error)
+
+func RunActionCommand(
+	command CommandType,
+	profile components.Profile,
+	loader Loader,
+	preRun []PreRunFunc,
+	postRun []PostRunFunc,
+) (Result, error) {
 	var step Result
+
+	for idx := range preRun {
+		var err error
+
+		profile, err = preRun[idx](command, profile)
+		if err != nil {
+			return step, err
+		}
+	}
 
 	switch command {
 	case SpawninCommandType:
@@ -41,10 +57,6 @@ func RunActionCommand(command CommandType, profile components.Profile, loader Lo
 			return step, err
 		}
 
-		if client != nil {
-			publishEvents(step.Events, client)
-		}
-
 		step.DefaultCmd = WalkCommandType
 
 		if profile.Active == nil {
@@ -54,21 +66,14 @@ func RunActionCommand(command CommandType, profile components.Profile, loader Lo
 		return step, ErrUnrecognizedCommand
 	}
 
-	return step, nil
-}
+	for idx := range postRun {
+		var err error
 
-func publishEvents(evts []components.Event, client *multiverse.Client) {
-	for _, evt := range evts {
-		switch evt.(type) {
-		case events.DieMutationEvent, events.CharacterSpawnEvent: // only spawn and die events are supported
-			bts, err := json.Marshal(evt)
-			if err != nil {
-				continue
-			}
-
-			client.PublishEvent(context.Background(), &proto.Event{
-				Data: bts,
-			})
+		step.Profile, err = postRun[idx](command, step.Profile, step.Events)
+		if err != nil {
+			return step, err
 		}
 	}
+
+	return step, nil
 }

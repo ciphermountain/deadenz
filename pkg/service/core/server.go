@@ -10,6 +10,7 @@ import (
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
 	"github.com/ciphermountain/deadenz/pkg/events"
+	"github.com/ciphermountain/deadenz/pkg/middleware"
 	"github.com/ciphermountain/deadenz/pkg/parse"
 	proto "github.com/ciphermountain/deadenz/pkg/proto/core"
 	"github.com/ciphermountain/deadenz/pkg/service/multiverse"
@@ -19,14 +20,26 @@ var _ proto.DeadenzServer = &Server{}
 
 type Server struct {
 	proto.UnimplementedDeadenzServer
-	loader     *util.DataLoader
-	multiverse *multiverse.Client
+	loader       *util.DataLoader
+	preCommands  []deadenz.PreRunFunc
+	postCommands []deadenz.PostRunFunc
 }
 
 func NewServer(client *multiverse.Client) *Server {
+	loader := util.NewDataLoader()
+	items := util.NewItemProviderFromLoader(loader)
+
 	return &Server{
-		loader:     util.NewDataLoader(),
-		multiverse: client,
+		loader: loader,
+		preCommands: []deadenz.PreRunFunc{
+			middleware.MultiverseDeathFilter(),
+			middleware.WalkLimiter(12, items),
+			middleware.WalkStatBuilder(2, items), // TODO: stats builder needs to be configured to items that can mutate stats
+		},
+		postCommands: []deadenz.PostRunFunc{
+			middleware.PublishEventsToMultiverse(client),
+			middleware.DeathActiveItemMiddleware(1, items), // TODO: death recovery active item needs to be configurable
+		},
 	}
 }
 
@@ -50,7 +63,7 @@ func (s *Server) Run(ctx context.Context, req *proto.RunRequest) (*proto.RunResp
 
 	profile := protoToProfile(req.GetProfile())
 
-	result, err := deadenz.RunActionCommand(command, profile, s.loader, s.multiverse)
+	result, err := deadenz.RunActionCommand(command, profile, s.loader, s.preCommands, s.postCommands)
 	if err != nil {
 		return &proto.RunResponse{
 			Response: &proto.Response{
