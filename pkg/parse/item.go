@@ -11,7 +11,8 @@ import (
 func ItemsFromJSON(b []byte) ([]components.Item, error) {
 	type jsonItem struct {
 		Name      string                `json:"name"`
-		Usability *components.Usability `json:"usability"`
+		Findable  bool                  `json:"findable"`
+		Usability *components.Usability `json:"usability,omitempty"`
 		Mutators  []json.RawMessage     `json:"mutators,omitempty"`
 	}
 
@@ -20,18 +21,15 @@ func ItemsFromJSON(b []byte) ([]components.Item, error) {
 	}
 
 	var loaded []jsonItem
-
 	if err := json.Unmarshal(b, &loaded); err != nil {
 		return nil, err
 	}
 
-	items := []components.Item{
-		components.NewLocker(),
-	}
+	items := make([]components.Item, len(loaded))
 
-	for i, l := range loaded {
-		mutators := make([]components.MutatorFunc, len(l.Mutators))
-		for idx, conf := range l.Mutators {
+	for idx, item := range loaded {
+		mutators := make([]components.MutatorFunc, len(item.Mutators))
+		for idx, conf := range item.Mutators {
 			var typed typer
 			if err := json.Unmarshal(conf, &typed); err != nil {
 				return nil, err
@@ -56,12 +54,13 @@ func ItemsFromJSON(b []byte) ([]components.Item, error) {
 			}
 		}
 
-		items = append(items, components.Item{
-			Type:      components.ItemType(i + 2),
-			Name:      l.Name,
-			Usability: l.Usability,
+		items[idx] = components.Item{
+			Type:      components.ItemType(idx + 1),
+			Name:      item.Name,
+			Findable:  item.Findable,
+			Usability: item.Usability,
 			Mutators:  mutators,
-		})
+		}
 	}
 
 	return items, nil

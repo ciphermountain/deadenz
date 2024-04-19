@@ -104,7 +104,10 @@ func TestWalkLimiter(t *testing.T) {
 				Name: "test",
 				Usability: &components.Usability{
 					ImprovesWalking: true,
-					Efficiency:      components.DefaultSkillEfficiency,
+					Efficiency: components.Efficiency{
+						Stat:  "skill",
+						Scale: 10_000,
+					},
 				},
 			}
 
@@ -115,7 +118,10 @@ func TestWalkLimiter(t *testing.T) {
 				ActiveItem: &itemID,
 				Limits: &components.Limits{
 					LastWalk:  time.Now().Add(-1 * time.Minute),
-					WalkCount: 3,
+					WalkCount: 4,
+				},
+				Stats: components.Stats{
+					Skill: 10,
 				},
 			}
 			newProfile, err := limiter(deadenz.WalkCommandType, profile)
@@ -123,7 +129,7 @@ func TestWalkLimiter(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, newProfile.Limits)
 
-			assert.Equal(t, uint64(4), newProfile.Limits.WalkCount)
+			assert.Equal(t, uint64(5), newProfile.Limits.WalkCount)
 			assert.GreaterOrEqual(t, newProfile.Limits.LastWalk.UnixMilli(), start.UnixMilli())
 		})
 

@@ -23,6 +23,12 @@ type ItemDecisionEvent struct {
 	addToBackpack bool
 }
 
+func NewItemDecisionEvent(message string) ItemDecisionEvent {
+	return ItemDecisionEvent{
+		value: message,
+	}
+}
+
 // String returns the event in string form.
 func (e ItemDecisionEvent) String() string {
 	return e.value

@@ -1,6 +1,8 @@
 package components
 
-import "math"
+import (
+	"math"
+)
 
 type ItemType uint64
 
@@ -9,14 +11,20 @@ type MutatorFunc func(*Profile) *Profile
 type Item struct {
 	Type      ItemType
 	Name      string
+	Findable  bool
 	Usability *Usability
 	Mutators  []MutatorFunc
 }
 
 type Usability struct {
-	ImprovesWalking   bool           `json:"improves_walking"`
-	SaveBackpackItems uint8          `json:"save_backpack_items"`
-	Efficiency        efficiencyFunc `json:"_"`
+	ImprovesWalking   bool       `json:"improves_walking,omitempty"`
+	SaveBackpackItems uint8      `json:"save_backpack_items,omitempty"`
+	Efficiency        Efficiency `json:"efficiency,omitempty"`
+}
+
+type Efficiency struct {
+	Stat  string `json:"stat_name"`
+	Scale uint32 `json:"scale"`
 }
 
 func (i Item) Mutate(profile *Profile) *Profile {
@@ -43,7 +51,20 @@ type UsableItem struct {
 }
 
 func NewUsableItem(item Item) UsableItem {
-	return UsableItem{item: item, efficiencyFunc: DefaultEfficiency}
+	var effFunc efficiencyFunc
+
+	switch item.Usability.Efficiency.Stat {
+	case "wit":
+		effFunc = ScaledEfficiency(item.Usability.Efficiency.Scale, forWit)
+	case "skill":
+		effFunc = ScaledEfficiency(item.Usability.Efficiency.Scale, forSkill)
+	case "humor":
+		effFunc = ScaledEfficiency(item.Usability.Efficiency.Scale, forHumor)
+	default:
+		effFunc = DefaultEfficiency
+	}
+
+	return UsableItem{item: item, efficiencyFunc: effFunc}
 }
 
 func (i UsableItem) ImprovesWalking() bool {
@@ -66,18 +87,6 @@ func (i UsableItem) ModifyBackpackContents(profile *Profile) *Profile {
 
 func (i UsableItem) Efficiency(stats Stats) int {
 	return i.efficiencyFunc(stats)
-}
-
-const (
-	Locker ItemType = iota + 1
-)
-
-func NewLocker() Item {
-	return Item{
-		Type:     Locker,
-		Name:     "a locker",
-		Mutators: []MutatorFunc{MutateSkillBy(1)},
-	}
 }
 
 func MutateWitBy(val int) MutatorFunc {
@@ -120,9 +129,23 @@ func DefaultEfficiency(_ Stats) int {
 	return 1
 }
 
-func DefaultSkillEfficiency(stats Stats) int {
-	skill := float64(stats.Skill)
-	result := math.Ceil((skill * skill) / ((skill * skill) / float64(10_000)))
+func ScaledEfficiency(scale uint32, forStat func(Stats) int) efficiencyFunc {
+	return func(stats Stats) int {
+		skill := float64(forStat(stats))
+		result := math.Ceil((skill * skill) / ((skill * skill) + float64(scale)))
 
-	return int(result)
+		return int(result)
+	}
+}
+
+func forWit(stats Stats) int {
+	return stats.Wit
+}
+
+func forSkill(stats Stats) int {
+	return stats.Skill
+}
+
+func forHumor(stats Stats) int {
+	return stats.Humor
 }

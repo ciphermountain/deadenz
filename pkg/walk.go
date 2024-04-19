@@ -75,6 +75,8 @@ func findItem(profile *components.Profile, loader Loader) (*components.Profile, 
 		// do the add to backpack
 		profile, err = addToBackpack(profile, randomItem)
 		if err != nil {
+			// the only possible error here is the backpack being too small
+			// the event needs to be surfaced, but the profile should be allowed to be modified
 			return profile, evts, err
 		}
 	}

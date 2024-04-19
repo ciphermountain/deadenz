@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/events"
 )
 
 var ErrUnrecognizedCommand = errors.New("unrecognized command")
@@ -62,7 +63,13 @@ func RunActionCommand(
 
 		step.Profile, step.Events, err = Walk(step.Profile, loader)
 		if err != nil {
-			return Result{Profile: &original}, err
+			if !errors.Is(err, ErrBackpackTooSmall) {
+				return Result{Profile: &original}, err
+			}
+
+			// TODO: make a better message
+			step.Events = append(step.Events, events.NewItemDecisionEvent("your backpack is too small"))
+			err = nil
 		}
 
 		step.DefaultCmd = WalkCommandType

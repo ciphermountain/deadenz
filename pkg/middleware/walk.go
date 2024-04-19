@@ -11,10 +11,6 @@ import (
 	"github.com/ciphermountain/deadenz/pkg/events"
 )
 
-const (
-	hourInMilliseconds time.Duration = time.Hour / time.Millisecond
-)
-
 var (
 	ErrNilProfile  = errors.New("profile cannot be nil")
 	ErrWalkTooMuch = errors.New("profile has walked too much")
@@ -61,7 +57,7 @@ func WalkLimiter(hourlyLimit uint16, items ItemProvider) deadenz.PreRunFunc {
 		}
 
 		diff := time.Since(profile.Limits.LastWalk) / time.Millisecond // duration since last walk
-		unit := float64(hourInMilliseconds) / float64(limit)
+		unit := float64(time.Hour/time.Millisecond) / float64(limit)
 		jumps := math.Floor(float64(diff) / unit)
 
 		count := profile.Limits.WalkCount - uint64(jumps)
