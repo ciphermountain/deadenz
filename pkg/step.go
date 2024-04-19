@@ -11,50 +11,58 @@ var ErrUnrecognizedCommand = errors.New("unrecognized command")
 // Result represents the state change of applying one step of the game on a player profile.
 type Result struct {
 	DefaultCmd CommandType
-	Profile    components.Profile
+	Profile    *components.Profile
 	Events     []components.Event
 }
 
 // PreRunFunc can read a profile, modify and return it.
-type PreRunFunc func(CommandType, components.Profile) (components.Profile, error)
+type PreRunFunc func(CommandType, *components.Profile) (*components.Profile, error)
 
 // PreRunFunc can read a profile with events, modify the profile, and return it.
-type PostRunFunc func(CommandType, components.Profile, []components.Event) (components.Profile, error)
+type PostRunFunc func(CommandType, *components.Profile, []components.Event) (*components.Profile, error)
 
 func RunActionCommand(
 	command CommandType,
-	profile components.Profile,
+	profile *components.Profile,
 	loader Loader,
 	preRun []PreRunFunc,
 	postRun []PostRunFunc,
 ) (Result, error) {
-	var step Result
+	if profile == nil {
+		return Result{}, errors.New("profile required")
+	}
+
+	original := *profile
+	step := Result{
+		Profile: profile,
+	}
 
 	for idx := range preRun {
 		var err error
 
-		profile, err = preRun[idx](command, profile)
+		step.Profile, err = preRun[idx](command, step.Profile)
 		if err != nil {
-			return step, err
+			return Result{Profile: &original}, err
 		}
 	}
+	// return profile, errors.New("you have walked too much. you need to rest for an hour. there's a park bench nearby")
 
 	switch command {
 	case SpawninCommandType:
 		var err error
 
-		step.Profile, step.Events, err = Spawn(profile, loader)
+		step.Profile, step.Events, err = Spawn(step.Profile, loader)
 		if err != nil {
-			return step, err
+			return Result{Profile: &original}, err
 		}
 
 		step.DefaultCmd = WalkCommandType
 	case WalkCommandType:
 		var err error
 
-		step.Profile, step.Events, err = Walk(profile, loader)
+		step.Profile, step.Events, err = Walk(step.Profile, loader)
 		if err != nil {
-			return step, err
+			return Result{Profile: &original}, err
 		}
 
 		step.DefaultCmd = WalkCommandType
@@ -71,7 +79,7 @@ func RunActionCommand(
 
 		step.Profile, err = postRun[idx](command, step.Profile, step.Events)
 		if err != nil {
-			return step, err
+			return Result{Profile: &original}, err
 		}
 	}
 

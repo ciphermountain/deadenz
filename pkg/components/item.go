@@ -1,8 +1,10 @@
 package components
 
+import "math"
+
 type ItemType uint64
 
-type MutatorFunc func(Profile) Profile
+type MutatorFunc func(*Profile) *Profile
 
 type Item struct {
 	Type      ItemType
@@ -12,11 +14,12 @@ type Item struct {
 }
 
 type Usability struct {
-	ImprovesWalking   bool  `json:"improves_walking"`
-	SaveBackpackItems uint8 `json:"save_backpack_items"`
+	ImprovesWalking   bool           `json:"improves_walking"`
+	SaveBackpackItems uint8          `json:"save_backpack_items"`
+	Efficiency        efficiencyFunc `json:"_"`
 }
 
-func (i Item) Mutate(profile Profile) Profile {
+func (i Item) Mutate(profile *Profile) *Profile {
 	for _, f := range i.Mutators {
 		profile = f(profile)
 	}
@@ -29,22 +32,25 @@ func (i Item) IsUsable() bool {
 }
 
 func (i Item) AsUsableItem() UsableItem {
-	return newUsableItem(i)
+	return NewUsableItem(i)
 }
+
+type efficiencyFunc func(Stats) int
 
 type UsableItem struct {
-	item Item
+	item           Item
+	efficiencyFunc efficiencyFunc
 }
 
-func newUsableItem(item Item) UsableItem {
-	return UsableItem{item: item}
+func NewUsableItem(item Item) UsableItem {
+	return UsableItem{item: item, efficiencyFunc: DefaultEfficiency}
 }
 
 func (i UsableItem) ImprovesWalking() bool {
 	return i.item.Usability.ImprovesWalking
 }
 
-func (i UsableItem) ModifyBackpackContents(profile Profile) Profile {
+func (i UsableItem) ModifyBackpackContents(profile *Profile) *Profile {
 	limit := i.item.Usability.SaveBackpackItems
 
 	if limit > profile.BackpackLimit {
@@ -59,14 +65,7 @@ func (i UsableItem) ModifyBackpackContents(profile Profile) Profile {
 }
 
 func (i UsableItem) Efficiency(stats Stats) int {
-	/*
-		const x = stats.skill;
-		const scale = 10000;
-
-		return (x*x)/((x*x)+scale)
-	*/
-
-	return 1
+	return i.efficiencyFunc(stats)
 }
 
 const (
@@ -82,7 +81,7 @@ func NewLocker() Item {
 }
 
 func MutateWitBy(val int) MutatorFunc {
-	return func(profile Profile) Profile {
+	return func(profile *Profile) *Profile {
 		profile.Stats.Wit += val
 
 		return profile
@@ -90,7 +89,7 @@ func MutateWitBy(val int) MutatorFunc {
 }
 
 func MutateSkillBy(val int) MutatorFunc {
-	return func(profile Profile) Profile {
+	return func(profile *Profile) *Profile {
 		profile.Stats.Skill += val
 
 		return profile
@@ -98,7 +97,7 @@ func MutateSkillBy(val int) MutatorFunc {
 }
 
 func MutateHumorBy(val int) MutatorFunc {
-	return func(profile Profile) Profile {
+	return func(profile *Profile) *Profile {
 		profile.Stats.Humor += val
 
 		return profile
@@ -106,7 +105,7 @@ func MutateHumorBy(val int) MutatorFunc {
 }
 
 func BackpackLimitMutator(limit uint8) MutatorFunc {
-	return func(profile Profile) Profile {
+	return func(profile *Profile) *Profile {
 		if len(profile.Backpack) > int(limit) {
 			profile.Backpack = profile.Backpack[:limit]
 		}
@@ -115,4 +114,15 @@ func BackpackLimitMutator(limit uint8) MutatorFunc {
 
 		return profile
 	}
+}
+
+func DefaultEfficiency(_ Stats) int {
+	return 1
+}
+
+func DefaultSkillEfficiency(stats Stats) int {
+	skill := float64(stats.Skill)
+	result := math.Ceil((skill * skill) / ((skill * skill) / float64(10_000)))
+
+	return int(result)
 }

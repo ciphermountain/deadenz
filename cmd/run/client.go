@@ -34,7 +34,7 @@ var (
 			// TODO: start a process to listen for events from the multiverse
 
 			// TODO: get profile from another source
-			profile := components.Profile{
+			profile := &components.Profile{
 				UUID:          "1",
 				XP:            0,
 				Currency:      0,
@@ -87,7 +87,7 @@ func runActionCommand(
 	cmd *cobra.Command,
 	client *core.Client,
 	input deadenz.CommandType,
-	profile components.Profile,
+	profile *components.Profile,
 ) *deadenz.CommandType {
 	var (
 		next   deadenz.CommandType
@@ -127,7 +127,7 @@ func runDataReadCommand(
 	cmd *cobra.Command,
 	client *core.Client,
 	input deadenz.CommandType,
-	profile components.Profile,
+	profile *components.Profile,
 ) {
 	switch input {
 	case deadenz.BackpackCommandType:

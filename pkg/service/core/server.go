@@ -41,6 +41,7 @@ func NewServer(client *multiverse.Client) *Server {
 		postCommands: []deadenz.PostRunFunc{
 			middleware.PublishEventsToMultiverse(client),
 			middleware.DeathActiveItemMiddleware(1, items), // TODO: death recovery active item needs to be configurable
+			middleware.WalkDeathEventMiddleware(),
 		},
 	}
 }
@@ -65,7 +66,7 @@ func (s *Server) Run(ctx context.Context, req *proto.RunRequest) (*proto.RunResp
 
 	profile := protoToProfile(req.GetProfile())
 
-	result, err := deadenz.RunActionCommand(command, profile, s.loader, s.preCommands, s.postCommands)
+	result, err := deadenz.RunActionCommand(command, &profile, s.loader, s.preCommands, s.postCommands)
 	if err != nil {
 		return &proto.RunResponse{
 			Response: &proto.Response{
@@ -250,7 +251,7 @@ func protoToProfile(profile *proto.Profile) components.Profile {
 	}
 }
 
-func profileToProto(profile components.Profile) *proto.Profile {
+func profileToProto(profile *components.Profile) *proto.Profile {
 	return &proto.Profile{
 		Uuid:          profile.UUID,
 		Xp:            uint64(profile.XP),

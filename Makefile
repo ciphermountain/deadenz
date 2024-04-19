@@ -21,7 +21,7 @@ benchmark: dependencies fmt
 fmt:
 	gofmt -w .
 
-generate: gen-grpc gen-grpc-multiverse
+generate: gen-grpc gen-grpc-multiverse mockery
 
 gen-grpc:
 	protoc --go_out=. --go_opt=paths=source_relative \

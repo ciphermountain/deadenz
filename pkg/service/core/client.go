@@ -35,7 +35,7 @@ func NewClient(addr string) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) Spawnin(ctx context.Context, profile components.Profile) ([]string, components.Profile, error) {
+func (c *Client) Spawnin(ctx context.Context, profile *components.Profile) ([]string, *components.Profile, error) {
 	req := &proto.RunRequest{
 		Command: &proto.RunRequest_Spawnin{
 			Spawnin: &proto.SpawninCommand{},
@@ -46,7 +46,7 @@ func (c *Client) Spawnin(ctx context.Context, profile components.Profile) ([]str
 	return c.run(ctx, profile, req)
 }
 
-func (c *Client) Walk(ctx context.Context, profile components.Profile) ([]string, components.Profile, error) {
+func (c *Client) Walk(ctx context.Context, profile *components.Profile) ([]string, *components.Profile, error) {
 	req := &proto.RunRequest{
 		Command: &proto.RunRequest_Walk{
 			Walk: &proto.WalkCommand{},
@@ -113,9 +113,9 @@ func (c *Client) Close() error {
 
 func (c *Client) run(
 	ctx context.Context,
-	profile components.Profile,
+	profile *components.Profile,
 	req *proto.RunRequest,
-) ([]string, components.Profile, error) {
+) ([]string, *components.Profile, error) {
 	resp, err := c.grpcClient.Run(ctx, req)
 	if err != nil {
 		return nil, profile, err
@@ -125,5 +125,7 @@ func (c *Client) run(
 		return nil, profile, fmt.Errorf("%s", resp.Response.Message)
 	}
 
-	return resp.Events, protoToProfile(resp.Profile), nil
+	protoProfile := protoToProfile(resp.Profile)
+
+	return resp.Events, &protoProfile, nil
 }

@@ -11,3 +11,7 @@ packages:
       # select the interfaces you want mocked
       Loader:
         config:
+  github.com/ciphermountain/deadenz/pkg/middleware:
+    config:
+    interfaces:
+      ItemProvider:

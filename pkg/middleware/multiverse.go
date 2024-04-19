@@ -12,7 +12,7 @@ import (
 )
 
 func PublishEventsToMultiverse(client *service.Client) deadenz.PostRunFunc {
-	return func(cmd deadenz.CommandType, profile components.Profile, evts []components.Event) (components.Profile, error) {
+	return func(cmd deadenz.CommandType, profile *components.Profile, evts []components.Event) (*components.Profile, error) {
 		// passthrough if not walk or spawnin command
 		if cmd != deadenz.WalkCommandType && cmd != deadenz.SpawninCommandType {
 			return profile, nil
@@ -26,8 +26,9 @@ func PublishEventsToMultiverse(client *service.Client) deadenz.PostRunFunc {
 	}
 }
 
+// TODO: complete death filter
 func MultiverseDeathFilter() deadenz.PreRunFunc {
-	return func(ct deadenz.CommandType, p components.Profile) (components.Profile, error) {
+	return func(ct deadenz.CommandType, p *components.Profile) (*components.Profile, error) {
 		return p, nil
 	}
 }
