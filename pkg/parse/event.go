@@ -50,6 +50,13 @@ func DecodeJSONEvent(data []byte) (components.Event, error) {
 		return event, nil
 	case components.EventTypeMutation:
 		return UnmarshalMutationEvent(data)
+	case components.EventTypeSpawnin:
+		var event events.CharacterSpawnEvent
+		if err := json.Unmarshal(data, &event); err != nil {
+			return nil, err
+		}
+
+		return event, nil
 	default:
 		return nil, errors.New("unknown event type")
 	}
@@ -57,8 +64,9 @@ func DecodeJSONEvent(data []byte) (components.Event, error) {
 
 func UnmarshalMutationEvent(data []byte) (components.Event, error) {
 	type action struct {
-		Message string `json:"message"`
-		IsDeath bool   `json:"isDeath"`
+		Message   string  `json:"message"`
+		IsDeath   bool    `json:"isDeath"`
+		Character *uint64 `json:"character_type"`
 	}
 
 	var loaded action
@@ -68,7 +76,16 @@ func UnmarshalMutationEvent(data []byte) (components.Event, error) {
 	}
 
 	if loaded.IsDeath {
-		return events.NewDieMutationEvent(loaded.Message), nil
+		evt := events.NewDieMutationEvent(loaded.Message)
+
+		if loaded.Character != nil {
+			return events.NewDieMutationEventWithCharacter(
+				components.Character{Type: components.CharacterType(*loaded.Character)},
+				evt,
+			), nil
+		}
+
+		return evt, nil
 	}
 
 	return events.NewLiveMutationEvent(loaded.Message), nil

@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MultiverseClient interface {
-	PublishEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*Response, error)
+	PublishGameEvent(ctx context.Context, in *GameEvent, opts ...grpc.CallOption) (*Response, error)
 	Events(ctx context.Context, in *Filter, opts ...grpc.CallOption) (Multiverse_EventsClient, error)
 }
 
@@ -34,9 +34,9 @@ func NewMultiverseClient(cc grpc.ClientConnInterface) MultiverseClient {
 	return &multiverseClient{cc}
 }
 
-func (c *multiverseClient) PublishEvent(ctx context.Context, in *Event, opts ...grpc.CallOption) (*Response, error) {
+func (c *multiverseClient) PublishGameEvent(ctx context.Context, in *GameEvent, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
-	err := c.cc.Invoke(ctx, "/multiverse.Multiverse/PublishEvent", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/multiverse.Multiverse/PublishGameEvent", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (x *multiverseEventsClient) Recv() (*Event, error) {
 // All implementations must embed UnimplementedMultiverseServer
 // for forward compatibility
 type MultiverseServer interface {
-	PublishEvent(context.Context, *Event) (*Response, error)
+	PublishGameEvent(context.Context, *GameEvent) (*Response, error)
 	Events(*Filter, Multiverse_EventsServer) error
 	mustEmbedUnimplementedMultiverseServer()
 }
@@ -88,8 +88,8 @@ type MultiverseServer interface {
 type UnimplementedMultiverseServer struct {
 }
 
-func (UnimplementedMultiverseServer) PublishEvent(context.Context, *Event) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PublishEvent not implemented")
+func (UnimplementedMultiverseServer) PublishGameEvent(context.Context, *GameEvent) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PublishGameEvent not implemented")
 }
 func (UnimplementedMultiverseServer) Events(*Filter, Multiverse_EventsServer) error {
 	return status.Errorf(codes.Unimplemented, "method Events not implemented")
@@ -107,20 +107,20 @@ func RegisterMultiverseServer(s grpc.ServiceRegistrar, srv MultiverseServer) {
 	s.RegisterService(&Multiverse_ServiceDesc, srv)
 }
 
-func _Multiverse_PublishEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Event)
+func _Multiverse_PublishGameEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GameEvent)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MultiverseServer).PublishEvent(ctx, in)
+		return srv.(MultiverseServer).PublishGameEvent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/multiverse.Multiverse/PublishEvent",
+		FullMethod: "/multiverse.Multiverse/PublishGameEvent",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MultiverseServer).PublishEvent(ctx, req.(*Event))
+		return srv.(MultiverseServer).PublishGameEvent(ctx, req.(*GameEvent))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -154,8 +154,8 @@ var Multiverse_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MultiverseServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PublishEvent",
-			Handler:    _Multiverse_PublishEvent_Handler,
+			MethodName: "PublishGameEvent",
+			Handler:    _Multiverse_PublishGameEvent_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

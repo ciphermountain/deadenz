@@ -7,7 +7,6 @@ import (
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
 	"github.com/ciphermountain/deadenz/pkg/events"
-	proto "github.com/ciphermountain/deadenz/pkg/proto/multiverse"
 	service "github.com/ciphermountain/deadenz/pkg/service/multiverse"
 )
 
@@ -19,32 +18,31 @@ func PublishEventsToMultiverse(client *service.Client) deadenz.PostRunFunc {
 		}
 
 		if client != nil {
-			publishEvents(evts, client)
+			publishEvents(profile, evts, client)
 		}
 
 		return profile, nil
 	}
 }
 
-// TODO: complete death filter
-func MultiverseDeathFilter() deadenz.PreRunFunc {
-	return func(ct deadenz.CommandType, p *components.Profile) (*components.Profile, error) {
-		return p, nil
+func publishEvents(profile *components.Profile, evts []components.Event, client *service.Client) {
+	for _, evt := range evts {
+		switch typed := evt.(type) {
+		case events.DieMutationEvent:
+			_ = marshalAndSend(events.NewDieMutationEventWithCharacter(*profile.Active, typed), client, profile.UUID)
+		case events.CharacterSpawnEvent: // only spawn and die events are supported
+			_ = marshalAndSend(typed, client, profile.UUID)
+		default:
+			continue
+		}
 	}
 }
 
-func publishEvents(evts []components.Event, client *service.Client) {
-	for _, evt := range evts {
-		switch evt.(type) {
-		case events.DieMutationEvent, events.CharacterSpawnEvent: // only spawn and die events are supported
-			bts, err := json.Marshal(evt)
-			if err != nil {
-				continue
-			}
-
-			client.PublishEvent(context.Background(), &proto.Event{
-				Data: bts,
-			})
-		}
+func marshalAndSend[T any](evt T, client *service.Client, id string) error {
+	bts, err := json.Marshal(evt)
+	if err != nil {
+		return err
 	}
+
+	return client.PublishGameEvent(context.Background(), id, bts)
 }

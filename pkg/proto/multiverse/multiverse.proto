@@ -5,15 +5,38 @@ option go_package = "github.com/ciphermountain/deadenz/pkg/multiverse/service";
 package multiverse;
 
 service Multiverse {
-    rpc PublishEvent(Event) returns (Response) {}
+    rpc PublishGameEvent(GameEvent) returns (Response) {}
 
     rpc Events(Filter) returns (stream Event) {}
 }
 
-message Event {
-    bytes data = 1;
+enum Status {
+    // option allow_alias = true;
+    OK = 0;
+    Failure = 1;
 }
 
-message Filter {}
+message GameEvent {
+    string uid = 1;
+    bytes data = 2;
+}
 
-message Response {}
+message Filter {
+    string uid = 1;
+    repeated string recipients = 2;
+}
+
+message Event {
+    oneof type {
+        DeathByCharacterType character_death = 1;
+    }
+}
+
+message DeathByCharacterType {
+    uint64 type = 1;
+}
+
+message Response {
+    Status status = 1;
+    string message = 2;
+}

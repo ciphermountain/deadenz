@@ -34,7 +34,6 @@ func NewServer(client *multiverse.Client) *Server {
 	return &Server{
 		loader: loader,
 		preCommands: []deadenz.PreRunFunc{
-			middleware.MultiverseDeathFilter(),
 			middleware.WalkLimiter(12, items),
 			middleware.WalkStatBuilder(2, items), // TODO: stats builder needs to be configured to items that can mutate stats
 		},

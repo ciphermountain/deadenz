@@ -60,6 +60,58 @@ func (e *DieMutationEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type DieMutationEventWithCharacter struct {
+	Character components.CharacterType
+	Death     DieMutationEvent
+}
+
+func NewDieMutationEventWithCharacter(character components.Character, evt DieMutationEvent) DieMutationEventWithCharacter {
+	return DieMutationEventWithCharacter{
+		Character: character.Type,
+		Death:     evt,
+	}
+}
+
+func (e DieMutationEventWithCharacter) String() string {
+	return e.Death.value
+}
+
+func (e DieMutationEventWithCharacter) MarshalJSON() ([]byte, error) {
+	formatted := jsonMutationEvent{
+		Type:      string(components.EventTypeMutation),
+		Message:   e.Death.value,
+		IsDeath:   true,
+		Character: (*uint64)(&e.Character),
+	}
+
+	return json.Marshal(formatted)
+}
+
+func (e *DieMutationEventWithCharacter) UnmarshalJSON(data []byte) error {
+	var formatted jsonMutationEvent
+
+	if err := json.Unmarshal(data, &formatted); err != nil {
+		return err
+	}
+
+	if !formatted.IsDeath {
+		return errors.New("not a death event")
+	}
+
+	if formatted.Character == nil {
+		return errors.New("death event has no character")
+	}
+
+	*e = DieMutationEventWithCharacter{
+		Character: components.CharacterType(*formatted.Character),
+		Death: DieMutationEvent{
+			value: formatted.Message,
+		},
+	}
+
+	return nil
+}
+
 func LoadMutations(b []byte) ([]LiveMutationEvent, []DieMutationEvent, error) {
 	type action struct {
 		Message string `json:"message"`
@@ -133,7 +185,8 @@ func (e *LiveMutationEvent) UnmarshalJSON(data []byte) error {
 }
 
 type jsonMutationEvent struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
-	IsDeath bool   `json:"isDeath"`
+	Type      string  `json:"type"`
+	Message   string  `json:"message"`
+	IsDeath   bool    `json:"isDeath"`
+	Character *uint64 `json:"character_type,omitempty"`
 }
