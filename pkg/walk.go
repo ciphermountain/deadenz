@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	ErrNotSpawnedIn     = errors.New("no active character. spawnin to begin")
-	ErrBackpackTooSmall = errors.New("not enough room in your backpack")
+	ErrNotSpawnedIn     = errors.New("no active character. spawnin to begin") // TODO: breaks multi-language support
+	ErrBackpackTooSmall = errors.New("not enough room in your backpack")      // TODO: breaks multi-language support
 )
 
 func Walk(profile *components.Profile, loader Loader) (*components.Profile, []components.Event, error) {

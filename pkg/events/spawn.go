@@ -18,7 +18,7 @@ type CharacterSpawnEvent struct {
 }
 
 func (e CharacterSpawnEvent) String() string {
-	return fmt.Sprintf("you spawned in as a %s", e.character.Name)
+	return fmt.Sprintf("you spawned in as a %s", e.character.Name) // TODO: breaks multi-language support
 }
 
 func (e CharacterSpawnEvent) Type() components.CharacterType {
@@ -77,7 +77,7 @@ type EarnedXPEvent struct {
 }
 
 func (e EarnedXPEvent) String() string {
-	return fmt.Sprintf("you earned %d xp", e.xp)
+	return fmt.Sprintf("you earned %d xp", e.xp) // TODO: breaks multi-language support
 }
 
 func NewEarnedTokenEvent(xp uint) components.Event {
@@ -89,5 +89,5 @@ type EarnedTokenEvent struct {
 }
 
 func (e EarnedTokenEvent) String() string {
-	return fmt.Sprintf("you earned %d tokens", e.xp)
+	return fmt.Sprintf("you earned %d tokens", e.xp) // TODO: breaks multi-language support
 }

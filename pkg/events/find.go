@@ -16,7 +16,7 @@ type FindEvent struct {
 }
 
 func (e FindEvent) String() string {
-	return fmt.Sprintf("you find %s", e.Item.Name)
+	return fmt.Sprintf("you find %s", e.Item.Name) // TODO: breaks multi-language support
 }
 
 func (e FindEvent) MarshalJSON() ([]byte, error) {

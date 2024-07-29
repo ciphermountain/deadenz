@@ -29,7 +29,10 @@ type MultiverseServer struct {
 
 func NewMultiverseServer() *MultiverseServer {
 	return &MultiverseServer{
-		subscribers: make(map[string]chan *proto.Event),
+		subscribers:      make(map[string]chan *proto.Event),
+		characterLookup:  make(map[components.CharacterType][]string),
+		characterReverse: make(map[string]components.CharacterType),
+		characterLocks:   make(map[components.CharacterType]*sync.RWMutex),
 	}
 }
 

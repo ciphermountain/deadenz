@@ -7,10 +7,13 @@ import (
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
 	"github.com/ciphermountain/deadenz/pkg/events"
-	service "github.com/ciphermountain/deadenz/pkg/service/multiverse"
 )
 
-func PublishEventsToMultiverse(client *service.Client) deadenz.PostRunFunc {
+type EventPublisher interface {
+	PublishGameEvent(context.Context, string, []byte) error
+}
+
+func PublishEventsToMultiverse(client EventPublisher) deadenz.PostRunFunc {
 	return func(cmd deadenz.CommandType, profile *components.Profile, evts []components.Event) (*components.Profile, error) {
 		// passthrough if not walk or spawnin command
 		if cmd != deadenz.WalkCommandType && cmd != deadenz.SpawninCommandType {
@@ -25,7 +28,7 @@ func PublishEventsToMultiverse(client *service.Client) deadenz.PostRunFunc {
 	}
 }
 
-func publishEvents(profile *components.Profile, evts []components.Event, client *service.Client) {
+func publishEvents(profile *components.Profile, evts []components.Event, client EventPublisher) {
 	for _, evt := range evts {
 		switch typed := evt.(type) {
 		case events.DieMutationEvent:
@@ -38,7 +41,7 @@ func publishEvents(profile *components.Profile, evts []components.Event, client 
 	}
 }
 
-func marshalAndSend[T any](evt T, client *service.Client, id string) error {
+func marshalAndSend[T any](evt T, client EventPublisher, id string) error {
 	bts, err := json.Marshal(evt)
 	if err != nil {
 		return err

@@ -86,5 +86,29 @@
 	{
     "message": "you die and the grim reaper haunts you forever",
     "isDeath": true
+  },
+	{
+    "message": "you die... thats really it, you die",
+    "isDeath": true
+  },
+	{
+    "message": "it yeets you and you get thrown into space",
+    "isDeath": true
+  },
+	{
+    "message": "you eat it, but its poisanous",
+    "isDeath": true
+  },
+	{
+    "message": "it sends you to the aztecs. you are thrown into a cenote, you drown",
+    "isDeath": true
+  },
+	{
+    "message": "it throws you into a skateboarding pit, you are run over and you die",
+    "isDeath": true
+  },
+	{
+    "message": "la cosa se dice que tu eres una idiota, y tu mueres",
+    "isDeath": true
   }
 ]
