@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ciphermountain/deadenz/internal/util"
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/data"
 	"github.com/ciphermountain/deadenz/pkg/events"
 	"github.com/ciphermountain/deadenz/pkg/middleware"
 	"github.com/ciphermountain/deadenz/pkg/parse"
@@ -22,25 +22,27 @@ var _ proto.DeadenzServer = &Server{}
 
 type Server struct {
 	proto.UnimplementedDeadenzServer
-	loader       *util.DataLoader
+	loader       *data.DataLoader
+	config       deadenz.Config
 	preCommands  []deadenz.PreRunFunc
 	postCommands []deadenz.PostRunFunc
 }
 
-func NewServer(client *multiverse.Client) *Server {
-	loader := util.NewDataLoader()
-	items := util.NewItemProviderFromLoader(loader)
+func NewServer(client *multiverse.Client, config deadenz.Config) *Server {
+	loader := data.NewDataLoader()
+	items := data.NewItemProviderFromLoader(loader)
 
 	return &Server{
 		loader: loader,
+		config: config,
 		preCommands: []deadenz.PreRunFunc{
-			middleware.WalkLimiter(12, items),
-			middleware.WalkStatBuilder(2, items), // TODO: stats builder needs to be configured to items that can mutate stats
+			middleware.WalkLimiter(config.WalkLimitPerHour, items),
+			middleware.WalkStatBuilder(items, deadenz.WalkCommandType),
 		},
 		postCommands: []deadenz.PostRunFunc{
 			middleware.PublishEventsToMultiverse(client),
-			middleware.DeathActiveItemMiddleware(1, items), // TODO: death recovery active item needs to be configurable
 			middleware.WalkDeathEventMiddleware(),
+			middleware.DeathActiveItemMiddleware(items),
 		},
 	}
 }
@@ -65,7 +67,7 @@ func (s *Server) Run(ctx context.Context, req *proto.RunRequest) (*proto.RunResp
 
 	profile := protoToProfile(req.GetProfile())
 
-	result, err := deadenz.RunActionCommand(command, &profile, s.loader, s.preCommands, s.postCommands)
+	result, err := deadenz.RunActionCommand(command, &profile, s.loader, s.config, s.preCommands, s.postCommands)
 	if err != nil {
 		return &proto.RunResponse{
 			Response: &proto.Response{
@@ -88,7 +90,7 @@ func (s *Server) Run(ctx context.Context, req *proto.RunRequest) (*proto.RunResp
 func (s *Server) Load(_ context.Context, req *proto.LoadRequest) (*proto.Response, error) {
 	var (
 		key    reflect.Type
-		parser util.Parser
+		parser data.Parser
 	)
 
 	switch req.GetType() {
@@ -396,7 +398,7 @@ func eventsToSlice(events []components.Event) []string {
 	return slice
 }
 
-func getLoaderType(req *proto.LoadRequest) (util.Loader, error) {
+func getLoaderType(req *proto.LoadRequest) (data.Loader, error) {
 	switch loader := req.Loader.(type) {
 	case *proto.LoadRequest_FileLoader:
 		return &FileLoader{Path: loader.FileLoader.GetPath()}, nil
@@ -408,17 +410,80 @@ func getLoaderType(req *proto.LoadRequest) (util.Loader, error) {
 }
 
 func itemToProto(item components.Item) *proto.Item {
-	return &proto.Item{
-		Type: uint64(item.Type),
-		Name: item.Name,
+	protoItem := &proto.Item{
+		Type:        uint64(item.Type),
+		Name:        item.Name,
+		Findable:    item.Findable,
+		Purchasable: item.Purchasable,
+		Price:       item.Price,
+		Mutators:    make([]*proto.Mutator, len(item.Mutators)),
 	}
+
+	if item.Usability != nil {
+		protoItem.Usability = &proto.Usability{
+			ImprovesWalking:   item.Usability.ImprovesWalking,
+			SaveBackpackItems: uint64(item.Usability.SaveBackpackItems),
+			EfficiencyStat:    item.Usability.Efficiency.Stat,
+			EfficiencyScale:   uint64(item.Usability.Efficiency.Scale),
+		}
+	}
+
+	for idx, mutator := range item.Mutators {
+		protoMut := &proto.Mutator{}
+
+		switch mut := mutator.(type) {
+		case *components.StatMutator:
+			protoMut.TypedMutator = &proto.Mutator_Stat{
+				Stat: &proto.StatMutator{
+					Stat:  mut.Stat,
+					Value: int64(mut.Value),
+				},
+			}
+		case *components.BackpackLimitMutator:
+			protoMut.TypedMutator = &proto.Mutator_Backpack{
+				Backpack: &proto.BackpackLimitMutator{
+					Limit: int64(mut.Limit),
+				},
+			}
+		}
+
+		protoItem.Mutators[idx] = protoMut
+	}
+
+	return protoItem
 }
 
 func protoToItem(item *proto.Item) components.Item {
-	return components.Item{
-		Type: components.ItemType(item.Type),
-		Name: item.Name,
+	newItem := components.Item{
+		Type:        components.ItemType(item.Type),
+		Name:        item.Name,
+		Findable:    item.Findable,
+		Purchasable: item.Purchasable,
+		Price:       item.Price,
+		Mutators:    make([]components.ProfileMutator, len(item.Mutators)),
 	}
+
+	if item.Usability != nil {
+		newItem.Usability = &components.Usability{
+			ImprovesWalking:   item.Usability.ImprovesWalking,
+			SaveBackpackItems: uint8(item.Usability.SaveBackpackItems),
+			Efficiency: components.Efficiency{
+				Stat:  item.Usability.EfficiencyStat,
+				Scale: uint32(item.Usability.EfficiencyScale),
+			},
+		}
+	}
+
+	for idx, mutator := range item.Mutators {
+		switch mut := mutator.GetTypedMutator().(type) {
+		case *proto.Mutator_Stat:
+			newItem.Mutators[idx] = components.NewStatMutator(mut.Stat.GetStat(), int(mut.Stat.GetValue()))
+		case *proto.Mutator_Backpack:
+			newItem.Mutators[idx] = components.NewBackpackLimitMutator(uint8(mut.Backpack.GetLimit()))
+		}
+	}
+
+	return newItem
 }
 
 func mutateListValues[T any, P any](list []T, f func(T) P) []P {

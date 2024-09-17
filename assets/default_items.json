@@ -1,10 +1,42 @@
 [
-  {"name": "a locker", "findable": false, "usability": {"save_backpack_items": 10}, "mutators": [{"type": "stats", "stat_name": "skill", "mutation": "1"}]},
-  {"name": "a walking stick", "findable": false, "usability": {"improves_walking": true, "efficiency": {"stat": "skill", "scale": 10000}}, "mutators": [{"type": "stats", "stat_name": "wit", "mutation": "1"}]},
+  {
+    "name": "an energy dring",
+    "purchasable": true,
+    "price": 5,
+    "findable": false,
+    "usability": {
+      "improves_walking": true,
+      "efficiency": {"stat": "wit", "scale": 5000}
+    },
+    "mutators": [{"type": "stats", "stat_name": "humor", "mutation": "1"}]
+  },
+  {
+    "name": "a locker",
+    "purchasable": true,
+    "price": 50,
+    "findable": false,
+    "usability": {"save_backpack_items": 10},
+    "mutators": [{"type": "stats", "stat_name": "skill", "mutation": "1"}]
+  },
+  {
+    "name": "a walking stick",
+    "purchasable": true,
+    "price": 2000,
+    "findable": false,
+    "usability": {
+      "improves_walking": true,
+      "efficiency": {"stat": "skill", "scale": 10000}
+    },
+    "mutators": [{"type": "stats", "stat_name": "wit", "mutation": "1"}]
+  },
   {"name": "a sandwich", "findable": true},
   {"name": "a ruby", "findable": true},
   {"name": "a sword", "findable": true},
-  {"name": "a bigger backpack", "findable": true, "mutators": [{"type": "backpack_limit", "limit": 40}, {"type": "stats", "stat_name": "skill", "mutation": "1"}]},
+  {
+    "name": "a bigger backpack",
+    "findable": true,
+    "mutators": [{"type": "backpack_limit", "limit": 40}, {"type": "stats", "stat_name": "skill", "mutation": "1"}]
+  },
   {"name": "giant scissors", "findable": true},
   {"name": "a typo", "findable": true},
   {"name": "a very fancy box", "findable": true},

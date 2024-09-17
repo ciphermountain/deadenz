@@ -26,6 +26,7 @@ func RunActionCommand(
 	command CommandType,
 	profile *components.Profile,
 	loader Loader,
+	conf Config,
 	preRun []PreRunFunc,
 	postRun []PostRunFunc,
 ) (Result, error) {
@@ -52,7 +53,7 @@ func RunActionCommand(
 	case SpawninCommandType:
 		var err error
 
-		step.Profile, step.Events, err = Spawn(step.Profile, loader)
+		step.Profile, step.Events, err = Spawn(step.Profile, loader, conf)
 		if err != nil {
 			return Result{Profile: &original}, err
 		}
@@ -61,7 +62,7 @@ func RunActionCommand(
 	case WalkCommandType:
 		var err error
 
-		step.Profile, step.Events, err = Walk(step.Profile, loader)
+		step.Profile, step.Events, err = Walk(step.Profile, loader, conf)
 		if err != nil {
 			if !errors.Is(err, ErrBackpackTooSmall) {
 				return Result{Profile: &original}, err

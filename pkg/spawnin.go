@@ -20,10 +20,15 @@ type Loader interface {
 	LoadCtx(context.Context, any) error
 }
 
+type Config struct {
+	ItemFindRate     int64
+	WalkLimitPerHour uint16
+}
+
 // Spawn assigns a new character to an existing profile and modifies xp, backpack,
 // and stats. Events emitted include spawn event and earned xp event. Will return
 // an already spawned error if profile has an active character.
-func Spawn(profile *components.Profile, loader Loader) (*components.Profile, []components.Event, error) {
+func Spawn(profile *components.Profile, loader Loader, _ Config) (*components.Profile, []components.Event, error) {
 	// short circuit if the user has an active character
 	if profile.Active != nil {
 		return profile, nil, ErrAlreadySpawnedIn
