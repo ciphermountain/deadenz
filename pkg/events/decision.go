@@ -66,7 +66,8 @@ func (e *ItemDecisionEvent) UnmarshalJSON(data []byte) error {
 	}
 
 	*e = ItemDecisionEvent{
-		value: formatted.Message,
+		value:         formatted.Message,
+		addToBackpack: formatted.AddToBackpack,
 	}
 
 	return nil

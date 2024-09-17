@@ -73,7 +73,7 @@ func (c *Client) Items(ctx context.Context) ([]components.Item, error) {
 
 	switch asset := resp.Asset.(type) {
 	case *proto.AssetResponse_Item:
-		return mutateListValues(asset.Item.Items, protoToItem), nil
+		return mutateListValues(asset.Item.GetItems(), protoToItem), nil
 	default:
 		return nil, fmt.Errorf("unexpected response")
 	}

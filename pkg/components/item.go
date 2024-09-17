@@ -6,14 +6,18 @@ import (
 
 type ItemType uint64
 
-type MutatorFunc func(*Profile) *Profile
+type ProfileMutator interface {
+	Mutate(*Profile) *Profile
+}
 
 type Item struct {
-	Type      ItemType
-	Name      string
-	Findable  bool
-	Usability *Usability
-	Mutators  []MutatorFunc
+	Type        ItemType
+	Name        string
+	Findable    bool
+	Purchasable bool
+	Price       int64
+	Usability   *Usability
+	Mutators    []ProfileMutator
 }
 
 type Usability struct {
@@ -29,7 +33,7 @@ type Efficiency struct {
 
 func (i Item) Mutate(profile *Profile) *Profile {
 	for _, f := range i.Mutators {
-		profile = f(profile)
+		profile = f.Mutate(profile)
 	}
 
 	return profile
@@ -87,42 +91,6 @@ func (i UsableItem) ModifyBackpackContents(profile *Profile) *Profile {
 
 func (i UsableItem) Efficiency(stats Stats) int {
 	return i.efficiencyFunc(stats)
-}
-
-func MutateWitBy(val int) MutatorFunc {
-	return func(profile *Profile) *Profile {
-		profile.Stats.Wit += val
-
-		return profile
-	}
-}
-
-func MutateSkillBy(val int) MutatorFunc {
-	return func(profile *Profile) *Profile {
-		profile.Stats.Skill += val
-
-		return profile
-	}
-}
-
-func MutateHumorBy(val int) MutatorFunc {
-	return func(profile *Profile) *Profile {
-		profile.Stats.Humor += val
-
-		return profile
-	}
-}
-
-func BackpackLimitMutator(limit uint8) MutatorFunc {
-	return func(profile *Profile) *Profile {
-		if len(profile.Backpack) > int(limit) {
-			profile.Backpack = profile.Backpack[:limit]
-		}
-
-		profile.BackpackLimit = uint8(limit)
-
-		return profile
-	}
 }
 
 func DefaultEfficiency(_ Stats) int {

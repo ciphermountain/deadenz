@@ -45,3 +45,7 @@ walk, backpack, xp, and currency.
 
 ### Spawnin
 This is the entry point of the game.
+
+```
+deadenz run core -l 127.0.0.1 -p 8000 --find-rate=50 --walk-limit=240 --with-multiverse --multiverse-host=127.0.0.1:9001
+```

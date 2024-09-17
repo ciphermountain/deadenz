@@ -80,7 +80,7 @@ func WalkLimiter(hourlyLimit uint16, items ItemProvider) deadenz.PreRunFunc {
 	}
 }
 
-func WalkStatBuilder(it components.ItemType, items ItemProvider, cmds ...deadenz.CommandType) deadenz.PreRunFunc {
+func WalkStatBuilder(items ItemProvider, cmds ...deadenz.CommandType) deadenz.PreRunFunc {
 	return func(cmd deadenz.CommandType, profile *components.Profile) (*components.Profile, error) {
 		var found bool
 
@@ -94,11 +94,17 @@ func WalkStatBuilder(it components.ItemType, items ItemProvider, cmds ...deadenz
 			return profile, nil
 		}
 
-		if profile.ActiveItem == nil || *profile.ActiveItem != it {
+		if profile.ActiveItem == nil {
 			return profile, nil
 		}
 
-		if item, err := items.Item(it); err == nil {
+		item, err := items.Item(*profile.ActiveItem)
+		if err != nil {
+			return profile, nil
+		}
+
+		// mutation here should only happen for walking stick or energy drink
+		if item.IsUsable() {
 			profile = item.Mutate(profile)
 		}
 

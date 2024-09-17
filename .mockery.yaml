@@ -4,7 +4,7 @@ dir: "{{.InterfaceDirRelative}}/mocks"
 outpkg: "mocks"
 mockname: "Mock{{.InterfaceName}}"
 packages:
-  github.com/ciphermountain/deadenz/internal/util:
+  github.com/ciphermountain/deadenz/pkg/data:
     # place your package-specific config here
     config:
     interfaces:

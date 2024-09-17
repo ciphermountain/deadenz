@@ -1,4 +1,4 @@
-package util_test
+package data_test
 
 import (
 	"context"
@@ -10,12 +10,12 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ciphermountain/deadenz/internal/util"
-	"github.com/ciphermountain/deadenz/internal/util/mocks"
+	"github.com/ciphermountain/deadenz/pkg/data"
+	"github.com/ciphermountain/deadenz/pkg/data/mocks"
 )
 
 func TestDataLoader(t *testing.T) {
-	dataLoader := util.NewDataLoader()
+	dataLoader := data.NewDataLoader()
 	loadedType := reflect.TypeOf([]string{})
 	loader := new(mocks.MockLoader)
 

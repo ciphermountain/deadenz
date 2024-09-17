@@ -9,11 +9,12 @@ import (
 )
 
 var (
-	ErrNotSpawnedIn     = errors.New("no active character. spawnin to begin") // TODO: breaks multi-language support
-	ErrBackpackTooSmall = errors.New("not enough room in your backpack")      // TODO: breaks multi-language support
+	DefaultItemFindRate int64 = 50                                                  // % of the time that will result in a findable item
+	ErrNotSpawnedIn           = errors.New("no active character. spawnin to begin") // TODO: breaks multi-language support
+	ErrBackpackTooSmall       = errors.New("not enough room in your backpack")      // TODO: breaks multi-language support
 )
 
-func Walk(profile *components.Profile, loader Loader) (*components.Profile, []components.Event, error) {
+func Walk(profile *components.Profile, loader Loader, conf Config) (*components.Profile, []components.Event, error) {
 	if profile.Active == nil {
 		return profile, nil, ErrNotSpawnedIn
 	}
@@ -23,7 +24,7 @@ func Walk(profile *components.Profile, loader Loader) (*components.Profile, []co
 	var nextFunc func(*components.Profile, Loader) (*components.Profile, []components.Event, error)
 
 	// 35% of the time will result in a findable item
-	if which < 35 {
+	if which < conf.ItemFindRate {
 		nextFunc = findItem
 	} else {
 		nextFunc = encounter
@@ -55,14 +56,21 @@ func findItem(profile *components.Profile, loader Loader) (*components.Profile, 
 		return profile, nil, err
 	}
 
+	findableItems := make([]components.Item, 0, len(items))
+	for idx, item := range items {
+		if item.Findable {
+			findableItems = append(findableItems, items[idx])
+		}
+	}
+
 	var decisions []events.ItemDecisionEvent
 	if err := loader.Load(&decisions); err != nil {
 		return profile, nil, err
 	}
 
 	// random item from loaded data
-	idx := util.Random(0, int64(len(items)-1))
-	randomItem := items[idx]
+	idx := util.Random(0, int64(len(findableItems)-1))
+	randomItem := findableItems[idx]
 
 	evts := []components.Event{
 		events.NewFindEvent(randomItem),
