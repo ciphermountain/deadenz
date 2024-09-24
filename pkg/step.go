@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
-	"github.com/ciphermountain/deadenz/pkg/events"
 )
 
 var ErrUnrecognizedCommand = errors.New("unrecognized command")
@@ -39,15 +38,25 @@ func RunActionCommand(
 		Profile: profile,
 	}
 
+PreRun:
 	for idx := range preRun {
 		var err error
 
 		step.Profile, err = preRun[idx](command, step.Profile)
 		if err != nil {
+			// if a trap is tripped, switch the command type
+			var trapErr ErrTrapTripped
+			if errors.As(err, &trapErr) {
+				// create a special death event and set a bypass command type
+				step.Events = append(step.Events, components.NewTripTrapMutationEvent(trapErr.Trap.Message))
+				command = TrapCommandType
+
+				break PreRun
+			}
+
 			return Result{Profile: &original}, err
 		}
 	}
-	// return profile, errors.New("you have walked too much. you need to rest for an hour. there's a park bench nearby")
 
 	switch command {
 	case SpawninCommandType:
@@ -69,15 +78,13 @@ func RunActionCommand(
 			}
 
 			// TODO: make a better message
-			step.Events = append(step.Events, events.NewItemDecisionEvent("your backpack is too small"))
+			step.Events = append(step.Events, components.NewEvent(components.NewItemDecisionEvent("your backpack is too small")))
 			err = nil
 		}
 
 		step.DefaultCmd = WalkCommandType
-
-		if profile.Active == nil {
-			step.DefaultCmd = SpawninCommandType
-		}
+	case TrapCommandType:
+		step.DefaultCmd = SpawninCommandType
 	default:
 		return step, ErrUnrecognizedCommand
 	}
@@ -89,6 +96,10 @@ func RunActionCommand(
 		if err != nil {
 			return Result{Profile: &original}, err
 		}
+	}
+
+	if profile.Active == nil {
+		step.DefaultCmd = SpawninCommandType
 	}
 
 	return step, nil

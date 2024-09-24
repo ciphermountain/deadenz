@@ -3,7 +3,6 @@ module github.com/ciphermountain/deadenz
 go 1.22
 
 require (
-	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.62.0

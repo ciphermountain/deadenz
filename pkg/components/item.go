@@ -6,13 +6,16 @@ import (
 
 type ItemType uint64
 
+type EfficiencyFunc func(stats Stats) int
+
 type ProfileMutator interface {
-	Mutate(*Profile) *Profile
+	Mutate(*Profile, EfficiencyFunc) *Profile
 }
 
 type Item struct {
 	Type        ItemType
 	Name        string
+	Description string
 	Findable    bool
 	Purchasable bool
 	Price       int64
@@ -23,20 +26,15 @@ type Item struct {
 type Usability struct {
 	ImprovesWalking   bool       `json:"improves_walking,omitempty"`
 	SaveBackpackItems uint8      `json:"save_backpack_items,omitempty"`
+	Trap              bool       `json:"trap,omitempty"`
+	UsageEvent        *Event     `json:"emits_event,omitempty"`
+	SingleUse         bool       `json:"single_use,omitempty"`
 	Efficiency        Efficiency `json:"efficiency,omitempty"`
 }
 
 type Efficiency struct {
 	Stat  string `json:"stat_name"`
 	Scale uint32 `json:"scale"`
-}
-
-func (i Item) Mutate(profile *Profile) *Profile {
-	for _, f := range i.Mutators {
-		profile = f.Mutate(profile)
-	}
-
-	return profile
 }
 
 func (i Item) IsUsable() bool {
@@ -69,6 +67,14 @@ func NewUsableItem(item Item) UsableItem {
 	}
 
 	return UsableItem{item: item, efficiencyFunc: effFunc}
+}
+
+func (i UsableItem) Mutate(profile *Profile) *Profile {
+	for _, f := range i.item.Mutators {
+		profile = f.Mutate(profile, i.Efficiency)
+	}
+
+	return profile
 }
 
 func (i UsableItem) ImprovesWalking() bool {

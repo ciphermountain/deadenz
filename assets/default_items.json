@@ -1,17 +1,19 @@
 [
   {
     "name": "an energy dring",
+    "description": "get a little energy back",
     "purchasable": true,
     "price": 5,
     "findable": false,
     "usability": {
-      "improves_walking": true,
+      "single_use": true,
       "efficiency": {"stat": "wit", "scale": 5000}
     },
-    "mutators": [{"type": "stats", "stat_name": "humor", "mutation": "1"}]
+    "mutators": [{"type": "stats", "stat_name": "humor", "mutation": "1"}, {"type": "walk_limit"}]
   },
   {
     "name": "a locker",
+    "description": "secure your items if you die",
     "purchasable": true,
     "price": 50,
     "findable": false,
@@ -20,6 +22,7 @@
   },
   {
     "name": "a walking stick",
+    "description": "don't get tired as easily",
     "purchasable": true,
     "price": 2000,
     "findable": false,
@@ -28,6 +31,27 @@
       "efficiency": {"stat": "skill", "scale": 10000}
     },
     "mutators": [{"type": "stats", "stat_name": "wit", "mutation": "1"}]
+  },
+  {
+    "name": "a bear trap",
+    "description": "trap your enemies",
+    "purchasable": true,
+    "price": 200,
+    "findable": true,
+    "usability": {
+      "single_use": true,
+      "trap": true,
+      "emits_event": {
+        "type": "mutation",
+        "message": "you stepped in a bear trap and died",
+        "isDeath": true,
+        "trap": true
+      }
+    },
+    "mutators": [
+      {"type": "stats", "stat_name": "skill", "mutation": "1"},
+      {"type": "stats", "stat_name": "wit", "mutation": "1"}
+    ]
   },
   {"name": "a sandwich", "findable": true},
   {"name": "a ruby", "findable": true},

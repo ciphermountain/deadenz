@@ -1,24 +1,17 @@
-package events
+package components
 
 import (
 	"encoding/json"
-
-	"github.com/ciphermountain/deadenz/pkg/components"
+	"fmt"
 )
-
-func LoadActionEvents(b []byte) ([]ActionEvent, error) {
-	var loaded []ActionEvent
-
-	if err := json.Unmarshal(b, &loaded); err != nil {
-		return nil, err
-	}
-
-	return loaded, nil
-}
 
 // ActionEvent is intended to be something a character does. This can have effects on the character.
 type ActionEvent struct {
 	value string
+}
+
+func NewActionEvent(value string) ActionEvent {
+	return ActionEvent{value: value}
 }
 
 func (e ActionEvent) String() string {
@@ -26,13 +19,8 @@ func (e ActionEvent) String() string {
 }
 
 func (e ActionEvent) MarshalJSON() ([]byte, error) {
-	type action struct {
-		Type    string `json:"type"`
-		Message string `json:"message"`
-	}
-
-	formatted := action{
-		Type:    string(components.EventTypeAction),
+	formatted := jsonActionEvent{
+		Type:    string(EventTypeAction),
 		Message: e.value,
 	}
 
@@ -40,14 +28,13 @@ func (e ActionEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (e *ActionEvent) UnmarshalJSON(data []byte) error {
-	type action struct {
-		Message string `json:"message"`
-	}
-
-	var formatted action
-
+	var formatted jsonActionEvent
 	if err := json.Unmarshal(data, &formatted); err != nil {
 		return err
+	}
+
+	if formatted.Type != string(EventTypeAction) {
+		return fmt.Errorf("%w: %s; expected %s", ErrInvalidEventType, formatted.Type, EventTypeAction)
 	}
 
 	*e = ActionEvent{
@@ -55,4 +42,9 @@ func (e *ActionEvent) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+type jsonActionEvent struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
 }

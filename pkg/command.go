@@ -9,4 +9,5 @@ const (
 	BackpackCommandType
 	XPCommandType
 	CurrencyCommandType
+	TrapCommandType
 )

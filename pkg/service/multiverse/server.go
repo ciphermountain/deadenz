@@ -2,13 +2,12 @@ package multiverse
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"sync"
 	"time"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
-	"github.com/ciphermountain/deadenz/pkg/events"
-	"github.com/ciphermountain/deadenz/pkg/parse"
 	proto "github.com/ciphermountain/deadenz/pkg/proto/multiverse"
 )
 
@@ -41,15 +40,15 @@ func (s *MultiverseServer) PublishGameEvent(ctx context.Context, event *proto.Ga
 	defer s.mu.RUnlock()
 
 	// unmarshal game event
-	evt, err := parse.DecodeJSONEvent(event.Data)
-	if err != nil {
+	var evt components.Event
+	if err := json.Unmarshal(event.Data, &evt); err != nil {
 		return nil, err
 	}
 
-	switch typed := evt.(type) {
-	case events.CharacterSpawnEvent:
+	switch typed := evt.Typed().(type) {
+	case components.CharacterSpawnEvent:
 		s.saveSpawnEvent(typed, event.Uid)
-	case events.DieMutationEventWithCharacter:
+	case components.DieMutationEventWithCharacter:
 		s.processDeathEvent(typed)
 	}
 
@@ -81,7 +80,7 @@ func (s *MultiverseServer) Events(filter *proto.Filter, stream proto.Multiverse_
 	}
 }
 
-func (s *MultiverseServer) saveSpawnEvent(evt events.CharacterSpawnEvent, id string) {
+func (s *MultiverseServer) saveSpawnEvent(evt components.CharacterSpawnEvent, id string) {
 	lock := mustGetCharacterLock(evt.Type(), s.characterLocks)
 
 	lock.Lock()
@@ -93,7 +92,7 @@ func (s *MultiverseServer) saveSpawnEvent(evt events.CharacterSpawnEvent, id str
 	s.mu.Unlock()
 }
 
-func (s *MultiverseServer) processDeathEvent(evt events.DieMutationEventWithCharacter) {
+func (s *MultiverseServer) processDeathEvent(evt components.DieMutationEventWithCharacter) {
 	character := evt.Character
 	lock := mustGetCharacterLock(character, s.characterLocks)
 

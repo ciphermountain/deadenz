@@ -3,7 +3,6 @@ package middleware
 import (
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
-	"github.com/ciphermountain/deadenz/pkg/events"
 )
 
 // DeathActiveItemMiddleware applies the mutation of an active item as long as a death event exists and the
@@ -13,8 +12,8 @@ func DeathActiveItemMiddleware(items ItemProvider) deadenz.PostRunFunc {
 		// if any event is a death event, remove active character and apply backpack recovery
 	EventLoop:
 		for _, evt := range evts {
-			switch evt.(type) {
-			case events.DieMutationEvent:
+			switch evt.Typed().(type) {
+			case components.DieMutationEvent, components.TripTrapMutationEvent:
 				// always remove active item
 				temp := profile.ActiveItem
 				profile.ActiveItem = nil
@@ -26,7 +25,8 @@ func DeathActiveItemMiddleware(items ItemProvider) deadenz.PostRunFunc {
 					}
 
 					if item.IsUsable() {
-						profile = item.AsUsableItem().ModifyBackpackContents(item.Mutate(profile))
+						usable := item.AsUsableItem()
+						profile = usable.ModifyBackpackContents(usable.Mutate(profile))
 					} else {
 						profile.Backpack = []components.ItemType{}
 					}
