@@ -1,20 +1,9 @@
-package events
+package components
 
 import (
 	"encoding/json"
-
-	"github.com/ciphermountain/deadenz/pkg/components"
+	"fmt"
 )
-
-func LoadItemDecisions(b []byte) ([]ItemDecisionEvent, error) {
-	var loaded []ItemDecisionEvent
-
-	if err := json.Unmarshal(b, &loaded); err != nil {
-		return nil, err
-	}
-
-	return loaded, nil
-}
 
 // DecisionEvent is intended to be an action on an item found and is not expected to result in a mutation on the
 // character.
@@ -39,14 +28,8 @@ func (e ItemDecisionEvent) AddToBackpack() bool {
 }
 
 func (e ItemDecisionEvent) MarshalJSON() ([]byte, error) {
-	type event struct {
-		Type          string `json:"type"`
-		Message       string `json:"message"`
-		AddToBackpack bool   `json:"addToBackpack"`
-	}
-
-	formatted := event{
-		Type:    string(components.EventTypeItemDecision),
+	formatted := jsonItemDecisionEvent{
+		Type:    string(EventTypeItemDecision),
 		Message: e.value,
 	}
 
@@ -54,15 +37,13 @@ func (e ItemDecisionEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (e *ItemDecisionEvent) UnmarshalJSON(data []byte) error {
-	type event struct {
-		Message       string `json:"message"`
-		AddToBackpack bool   `json:"addToBackpack"`
-	}
-
-	var formatted event
-
+	var formatted jsonItemDecisionEvent
 	if err := json.Unmarshal(data, &formatted); err != nil {
 		return err
+	}
+
+	if formatted.Type != string(EventTypeItemDecision) {
+		return fmt.Errorf("%w: %s; expected %s", ErrInvalidEventType, formatted.Type, EventTypeItemDecision)
 	}
 
 	*e = ItemDecisionEvent{
@@ -71,4 +52,10 @@ func (e *ItemDecisionEvent) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+type jsonItemDecisionEvent struct {
+	Type          string `json:"type"`
+	Message       string `json:"message"`
+	AddToBackpack bool   `json:"addToBackpack"`
 }

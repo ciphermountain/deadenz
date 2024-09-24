@@ -15,14 +15,14 @@ import (
 )
 
 func init() {
-	runCore.Flags().Int64Var(&itemFindRate, "find-rate", 50, "percentage item find rate")
+	runCore.Flags().Float64Var(&itemFindRate, "find-rate", 0.5, "percentage item find rate")
 	runCore.Flags().Uint16Var(&walkLimit, "walk-limit", 24, "limit number of walk actions per hour")
 	runCore.Flags().BoolVar(&withMultiverse, "with-multiverse", false, "optionally connect to multiverse service")
 	runCore.Flags().StringVar(&multiverseHost, "multiverse-host", "127.0.0.1:8080", "host address to multiverse service")
 }
 
 var (
-	itemFindRate   int64
+	itemFindRate   float64
 	walkLimit      uint16
 	withMultiverse bool
 	multiverseHost string
@@ -49,6 +49,8 @@ var (
 			startServer(host, port, cmd.ErrOrStderr(), func(server grpc.ServiceRegistrar) {
 				proto.RegisterDeadenzServer(server, core.NewServer(client, deadenz.Config{
 					ItemFindRate:     itemFindRate,
+					TrapTripRate:     0.1,
+					DeathRate:        deadenz.DefaultDieRate,
 					WalkLimitPerHour: walkLimit,
 				}))
 			})

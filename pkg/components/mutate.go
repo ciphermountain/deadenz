@@ -12,7 +12,7 @@ func NewStatMutator(stat string, val int) *StatMutator {
 	}
 }
 
-func (m *StatMutator) Mutate(profile *Profile) *Profile {
+func (m *StatMutator) Mutate(profile *Profile, _ EfficiencyFunc) *Profile {
 	switch m.Stat {
 	case "wit":
 		profile.Stats.Wit += m.Value
@@ -35,12 +35,30 @@ func NewBackpackLimitMutator(limit uint8) *BackpackLimitMutator {
 	}
 }
 
-func (m *BackpackLimitMutator) Mutate(profile *Profile) *Profile {
+func (m *BackpackLimitMutator) Mutate(profile *Profile, _ EfficiencyFunc) *Profile {
 	if len(profile.Backpack) > int(m.Limit) {
 		profile.Backpack = profile.Backpack[:m.Limit]
 	}
 
 	profile.BackpackLimit = uint8(m.Limit)
+
+	return profile
+}
+
+type WalkLimitMutator struct{}
+
+func NewWalkLimitMutator() *WalkLimitMutator {
+	return &WalkLimitMutator{}
+}
+
+func (m *WalkLimitMutator) Mutate(profile *Profile, eff EfficiencyFunc) *Profile {
+	diff := uint64(eff(profile.Stats))
+
+	if profile.Limits.WalkCount > diff {
+		profile.Limits.WalkCount -= diff
+	} else {
+		profile.Limits.WalkCount = 0
+	}
 
 	return profile
 }

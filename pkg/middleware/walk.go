@@ -8,7 +8,6 @@ import (
 
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
-	"github.com/ciphermountain/deadenz/pkg/events"
 )
 
 var (
@@ -103,9 +102,9 @@ func WalkStatBuilder(items ItemProvider, cmds ...deadenz.CommandType) deadenz.Pr
 			return profile, nil
 		}
 
-		// mutation here should only happen for walking stick or energy drink
-		if item.IsUsable() {
-			profile = item.Mutate(profile)
+		// mutation here should only happen walking improves
+		if item.IsUsable() && item.Usability.ImprovesWalking {
+			profile = item.AsUsableItem().Mutate(profile)
 		}
 
 		return profile, nil
@@ -120,8 +119,8 @@ func WalkDeathEventMiddleware() deadenz.PostRunFunc {
 
 	EventLoop:
 		for _, evt := range evts {
-			switch evt.(type) {
-			case events.DieMutationEvent:
+			switch evt.Typed().(type) {
+			case components.DieMutationEvent, components.TripTrapMutationEvent:
 				profile.Active = nil
 
 				break EventLoop

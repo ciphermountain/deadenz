@@ -1,113 +1,141 @@
 [
 	{
+    "type": "mutation",
     "message": "you die instantly",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die and become a ghost",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die of dysentery",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you get eaten ... and die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die from contemplating incongruencias in the space time continuum",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die from crossing your eyes to impress your friends one too many times",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you get abducted by aliens and never return to your home planet; you’re as good as dead",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you and all the other yous in the multiverse die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you explode … and die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you implode … and die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you get swallowed by quicksand and die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you stub your toe in the dark and die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die by the sting of 1000 bees",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you find a bone in your hot dog and die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you experience a cuteness overload and die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die from an epic rugpull",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die of starvation thinking of ways to die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die of old age",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die of young age",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die from a medieval executioner",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die of measles",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die and the grim reaper haunts you forever",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you die... thats really it, you die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "it yeets you and you get thrown into space",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "you eat it, but its poisanous",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "it sends you to the aztecs. you are thrown into a cenote, you drown",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "it throws you into a skateboarding pit, you are run over and you die",
     "isDeath": true
   },
 	{
+    "type": "mutation",
     "message": "la cosa se dice que tu eres una idiota, y tu mueres",
     "isDeath": true
   }

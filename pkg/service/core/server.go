@@ -11,7 +11,6 @@ import (
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
 	"github.com/ciphermountain/deadenz/pkg/data"
-	"github.com/ciphermountain/deadenz/pkg/events"
 	"github.com/ciphermountain/deadenz/pkg/middleware"
 	"github.com/ciphermountain/deadenz/pkg/parse"
 	proto "github.com/ciphermountain/deadenz/pkg/proto/core"
@@ -31,12 +30,14 @@ type Server struct {
 func NewServer(client *multiverse.Client, config deadenz.Config) *Server {
 	loader := data.NewDataLoader()
 	items := data.NewItemProviderFromLoader(loader)
+	traps := data.NewTrapProviderFromLoader(loader)
 
 	return &Server{
 		loader: loader,
 		config: config,
 		preCommands: []deadenz.PreRunFunc{
 			middleware.WalkLimiter(config.WalkLimitPerHour, items),
+			middleware.PreRunTrapTripper(traps, config.TrapTripRate),
 			middleware.WalkStatBuilder(items, deadenz.WalkCommandType),
 		},
 		postCommands: []deadenz.PostRunFunc{
@@ -209,11 +210,11 @@ func (s *Server) Assets(ctx context.Context, req *proto.AssetRequest) (*proto.As
 var (
 	itemType      = reflect.TypeOf([]components.Item{})
 	characterType = reflect.TypeOf([]components.Character{})
-	decType       = reflect.TypeOf([]events.ItemDecisionEvent{})
-	actionType    = reflect.TypeOf([]events.ActionEvent{})
-	encType       = reflect.TypeOf([]events.EncounterEvent{})
-	liveType      = reflect.TypeOf([]events.LiveMutationEvent{})
-	dieType       = reflect.TypeOf([]events.DieMutationEvent{})
+	decType       = reflect.TypeOf([]components.ItemDecisionEvent{})
+	actionType    = reflect.TypeOf([]components.ActionEvent{})
+	encType       = reflect.TypeOf([]components.EncounterEvent{})
+	liveType      = reflect.TypeOf([]components.LiveMutationEvent{})
+	dieType       = reflect.TypeOf([]components.DieMutationEvent{})
 )
 
 func decodeItems(data []byte, val any) error {

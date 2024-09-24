@@ -1,18 +1,16 @@
-package events
+package components
 
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/ciphermountain/deadenz/pkg/components"
 )
 
-func NewFindEvent(item components.Item) components.Event {
-	return FindEvent{Item: item}
+type FindEvent struct {
+	Item Item
 }
 
-type FindEvent struct {
-	Item components.Item
+func NewFindEvent(item Item) FindEvent {
+	return FindEvent{Item: item}
 }
 
 func (e FindEvent) String() string {
@@ -20,13 +18,8 @@ func (e FindEvent) String() string {
 }
 
 func (e FindEvent) MarshalJSON() ([]byte, error) {
-	type event struct {
-		Type string          `json:"type"`
-		Item components.Item `json:"item"`
-	}
-
-	formatted := event{
-		Type: string(components.EventTypeFind),
+	formatted := jsonFindEvent{
+		Type: string(EventTypeFind),
 		Item: e.Item,
 	}
 
@@ -34,14 +27,13 @@ func (e FindEvent) MarshalJSON() ([]byte, error) {
 }
 
 func (e *FindEvent) UnmarshalJSON(data []byte) error {
-	type event struct {
-		Item components.Item `json:"item"`
-	}
-
-	var formatted event
-
+	var formatted jsonFindEvent
 	if err := json.Unmarshal(data, &formatted); err != nil {
 		return err
+	}
+
+	if formatted.Type != string(EventTypeFind) {
+		return fmt.Errorf("%w: %s; expected %s", ErrInvalidEventType, formatted.Type, EventTypeFind)
 	}
 
 	*e = FindEvent{
@@ -49,4 +41,9 @@ func (e *FindEvent) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+type jsonFindEvent struct {
+	Type string `json:"type"`
+	Item Item   `json:"item"`
 }

@@ -10,6 +10,7 @@ import (
 
 type simpleJSONItem struct {
 	Name        string                `json:"name"`
+	Description string                `json:"description"`
 	Findable    bool                  `json:"findable"`
 	Purchasable bool                  `json:"purchasable"`
 	Price       int64                 `json:"price"`
@@ -51,6 +52,8 @@ func ItemsFromJSON(b []byte) ([]components.Item, error) {
 				mutator = asStatMutator
 			case "backpack_limit":
 				mutator = asBackpackLimitMutator
+			case "walk_limit":
+				mutator = asWalkLimitMutator
 			default:
 				return nil, errors.New("unrecognized mutator type")
 			}
@@ -63,6 +66,7 @@ func ItemsFromJSON(b []byte) ([]components.Item, error) {
 		items[idx] = components.Item{
 			Type:        components.ItemType(idx + 1),
 			Name:        item.Name,
+			Description: item.Description,
 			Findable:    item.Findable,
 			Purchasable: item.Purchasable,
 			Price:       item.Price,
@@ -113,4 +117,8 @@ func asBackpackLimitMutator(data []byte) (components.ProfileMutator, error) {
 	}
 
 	return components.NewBackpackLimitMutator(mut.Limit), nil
+}
+
+func asWalkLimitMutator(_ []byte) (components.ProfileMutator, error) {
+	return components.NewWalkLimitMutator(), nil
 }

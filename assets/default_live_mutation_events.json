@@ -1,93 +1,116 @@
 [
 	{
+    "type": "mutation",
     "message": "you turn into a fish",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you turn into a pencil",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you turn into an inverted mermaid",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you turn into a ball of string",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you turn into a gummy bear",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you survive a deadly encounter",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you marry it and have two beautiful children Nathaniel and Supa Fly",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you realize it is also a comic loving nerd just like you and you make a new friend",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you are told to put your hands on the oodles of noodles and you ask chicken or beef",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you are forced to sing along to a song you don't know",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you get coal for Christmas",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you feel surprised that nothing happened",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you get an F- in geography",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you receive an attaboy from your dear old dad",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you discover a strange new addiction",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you discover a strange new obsession",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you learn a new skill",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you get a permanent pizza stain on your upper lip",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you are given a first class one way ticket to Albuquerque",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you get hired to work the Night Shift at a pizzeria",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you find that your terror farts just saved your life",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you moon walk out of the situation",
     "isDeath": false
   },
 	{
+    "type": "mutation",
     "message": "you capitalize on the confusion and run away safe",
     "isDeath": false
   }

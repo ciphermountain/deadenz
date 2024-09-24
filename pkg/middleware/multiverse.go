@@ -6,7 +6,6 @@ import (
 
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
-	"github.com/ciphermountain/deadenz/pkg/events"
 )
 
 type EventPublisher interface {
@@ -30,10 +29,10 @@ func PublishEventsToMultiverse(client EventPublisher) deadenz.PostRunFunc {
 
 func publishEvents(profile *components.Profile, evts []components.Event, client EventPublisher) {
 	for _, evt := range evts {
-		switch typed := evt.(type) {
-		case events.DieMutationEvent:
-			_ = marshalAndSend(events.NewDieMutationEventWithCharacter(*profile.Active, typed), client, profile.UUID)
-		case events.CharacterSpawnEvent: // only spawn and die events are supported
+		switch typed := evt.Typed().(type) {
+		case components.DieMutationEvent:
+			_ = marshalAndSend(components.NewDieMutationEventWithCharacter(*profile.Active, typed), client, profile.UUID)
+		case components.CharacterSpawnEvent: // only spawn and die events are supported
 			_ = marshalAndSend(typed, client, profile.UUID)
 		default:
 			continue

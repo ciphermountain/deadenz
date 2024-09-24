@@ -1,15 +1,15 @@
 [
-	{"message": "you add it to your backpack", "addToBackpack": true},
-	{"message": "you ignore it", "addToBackpack": false},
-	{"message": "you eat it", "addToBackpack": false},
-	{"message": "you look at it inquisitively", "addToBackpack": false},
-	{"message": "you pour water on it", "addToBackpack": false},
-	{"message": "you pretend it's a microphone and you sing", "addToBackpack": false},
-	{"message": "you mistake it for a water bottle and you drink from it", "addToBackpack": false},
-	{"message": "you burn it", "addToBackpack": false},
-	{"message": "you throw it in the rubbish bin", "addToBackpack": false},
-	{"message": "you play baseball with it", "addToBackpack": false},
-	{"message": "you feed it to your pet tiger in Oklahoma", "addToBackpack": false},
-	{"message": "you throw it at your best friend", "addToBackpack": false},
-	{"message": "you yeet it into space", "addToBackpack": false}
+	{"type": "item_decision", "message": "you add it to your backpack", "addToBackpack": true},
+	{"type": "item_decision", "message": "you ignore it", "addToBackpack": false},
+	{"type": "item_decision", "message": "you eat it", "addToBackpack": false},
+	{"type": "item_decision", "message": "you look at it inquisitively", "addToBackpack": false},
+	{"type": "item_decision", "message": "you pour water on it", "addToBackpack": false},
+	{"type": "item_decision", "message": "you pretend it's a microphone and you sing", "addToBackpack": false},
+	{"type": "item_decision", "message": "you mistake it for a water bottle and you drink from it", "addToBackpack": false},
+	{"type": "item_decision", "message": "you burn it", "addToBackpack": false},
+	{"type": "item_decision", "message": "you throw it in the rubbish bin", "addToBackpack": false},
+	{"type": "item_decision", "message": "you play baseball with it", "addToBackpack": false},
+	{"type": "item_decision", "message": "you feed it to your pet tiger in Oklahoma", "addToBackpack": false},
+	{"type": "item_decision", "message": "you throw it at your best friend", "addToBackpack": false},
+	{"type": "item_decision", "message": "you yeet it into space", "addToBackpack": false}
 ]

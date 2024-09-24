@@ -6,7 +6,6 @@ import (
 
 	"github.com/ciphermountain/deadenz/internal/util"
 	"github.com/ciphermountain/deadenz/pkg/components"
-	"github.com/ciphermountain/deadenz/pkg/events"
 )
 
 var (
@@ -21,7 +20,9 @@ type Loader interface {
 }
 
 type Config struct {
-	ItemFindRate     int64
+	ItemFindRate     float64
+	TrapTripRate     float64
+	DeathRate        float64
 	WalkLimitPerHour uint16
 }
 
@@ -46,8 +47,8 @@ func Spawn(profile *components.Profile, loader Loader, _ Config) (*components.Pr
 	// TODO: register in multiverse
 
 	evts := []components.Event{
-		events.NewCharacterSpawnEvent(char),
-		events.NewEarnedXPEvent(uint(char.Multiplier)),
+		components.NewEvent(components.NewCharacterSpawnEvent(char)),
+		components.NewEvent(components.NewEarnedXPEvent(uint(char.Multiplier))),
 	}
 
 	return profile, evts, nil
