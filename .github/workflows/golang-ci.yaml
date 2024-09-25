@@ -1,0 +1,71 @@
+name: golang-ci
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  lint:
+    name: Code Linting Checks
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: "go.mod"
+
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v6
+      with:
+        # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+        version: latest
+
+  unit-test:
+    name: Unit Test Checks
+    runs-on: ubuntu-latest
+    # needs: [lint]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: "go.mod"
+
+    - name: Run Unit Tests
+      run: |
+        go test -v -timeout=30s ./... -coverprofile coverage.out.tmp -covermode count
+        cat coverage.out.tmp | grep -v "mocks" > coverage.out && rm coverage.out.tmp
+        go tool cover -func coverage.out
+
+    - name: Quality Gate - Test coverage shall be above threshold
+      env:
+          TESTCOVERAGE_THRESHOLD: 0
+      run: |
+            echo "Quality Gate: checking test coverage is above threshold ..."
+            echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
+            totalCoverage=`go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+            echo "Current test coverage : $totalCoverage %"
+            if (( $(echo "$totalCoverage $TESTCOVERAGE_THRESHOLD" | awk '{print ($1 > $2)}') )); then
+                echo "OK"
+            else
+                echo "Current test coverage is below threshold. Please add more unit tests or adjust threshold to a lower value."
+                echo "Failed"
+                exit 1
+            fi
+
+  race-test:
+    name: Race Condition Checks
+    runs-on: ubuntu-latest
+    # needs: [lint]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: "go.mod"
+
+    - name: Run Race Tests
+      run: go test -race -timeout=30s ./...
+
