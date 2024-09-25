@@ -67,7 +67,7 @@ func TestRunActionCommand_Die(t *testing.T) {
 		Backpack:      []components.ItemType{1, 2, 3},
 	}
 
-	encounters := []components.EncounterEvent{components.NewEncounterEvent("a wolf", opts.WithLanguage("en"))}
+	encounters := []components.EncounterEvent{components.NewEncounterEvent("a wolf")}
 	actions := []components.ActionEvent{components.NewActionEvent("an action")}
 	liveEvts := []components.LiveMutationEvent{}
 	dieEvts := []components.DieMutationEvent{components.NewDieMutationEvent("a death")}
@@ -137,7 +137,7 @@ func TestRunActionCommand_Die(t *testing.T) {
 
 	require.Len(t, result.Events, 5)
 
-	assert.Equal(t, "a wolf", result.Events[0].String())
+	assert.Equal(t, "you encounter a wolf", result.Events[0].String())
 	assert.Equal(t, "an action", result.Events[1].String())
 	assert.Equal(t, "a death", result.Events[2].String())
 	assert.Equal(t, "you earned 1 xp", result.Events[3].String())
@@ -153,7 +153,7 @@ func TestRunActionCommand_Live(t *testing.T) {
 		Backpack:      []components.ItemType{1, 2, 3},
 	}
 
-	encounters := []components.EncounterEvent{components.NewEncounterEvent("a wolf", opts.WithLanguage("lang"))}
+	encounters := []components.EncounterEvent{components.NewEncounterEvent("a wolf")}
 	actions := []components.ActionEvent{components.NewActionEvent("an action")}
 	liveEvts := []components.LiveMutationEvent{components.NewLiveMutationEvent("living")}
 	dieEvts := []components.DieMutationEvent{}
@@ -223,7 +223,7 @@ func TestRunActionCommand_Live(t *testing.T) {
 
 	require.Len(t, result.Events, 5)
 
-	assert.Equal(t, "a wolf", result.Events[0].String())
+	assert.Equal(t, "you encounter a wolf", result.Events[0].String())
 	assert.Equal(t, "an action", result.Events[1].String())
 	assert.Equal(t, "living", result.Events[2].String())
 	assert.Equal(t, "you earned 1 xp", result.Events[3].String())
