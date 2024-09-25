@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 var ErrUnrecognizedCommand = errors.New("unrecognized command")
@@ -16,10 +17,10 @@ type Result struct {
 }
 
 // PreRunFunc can read a profile, modify and return it.
-type PreRunFunc func(CommandType, *components.Profile) (*components.Profile, error)
+type PreRunFunc func(CommandType, *components.Profile, ...opts.Option) (*components.Profile, error)
 
 // PreRunFunc can read a profile with events, modify the profile, and return it.
-type PostRunFunc func(CommandType, *components.Profile, []components.Event) (*components.Profile, error)
+type PostRunFunc func(CommandType, *components.Profile, []components.Event, ...opts.Option) (*components.Profile, error)
 
 func RunActionCommand(
 	command CommandType,
@@ -28,6 +29,7 @@ func RunActionCommand(
 	conf Config,
 	preRun []PreRunFunc,
 	postRun []PostRunFunc,
+	options ...opts.Option,
 ) (Result, error) {
 	if profile == nil {
 		return Result{}, errors.New("profile required")
@@ -42,7 +44,7 @@ PreRun:
 	for idx := range preRun {
 		var err error
 
-		step.Profile, err = preRun[idx](command, step.Profile)
+		step.Profile, err = preRun[idx](command, step.Profile, options...)
 		if err != nil {
 			// if a trap is tripped, switch the command type
 			var trapErr ErrTrapTripped
@@ -62,7 +64,7 @@ PreRun:
 	case SpawninCommandType:
 		var err error
 
-		step.Profile, step.Events, err = Spawn(step.Profile, loader, conf)
+		step.Profile, step.Events, err = Spawn(step.Profile, loader, conf, options...)
 		if err != nil {
 			return Result{Profile: &original}, err
 		}
@@ -71,7 +73,7 @@ PreRun:
 	case WalkCommandType:
 		var err error
 
-		step.Profile, step.Events, err = Walk(step.Profile, loader, conf)
+		step.Profile, step.Events, err = Walk(step.Profile, loader, conf, options...)
 		if err != nil {
 			if !errors.Is(err, ErrBackpackTooSmall) {
 				return Result{Profile: &original}, err
@@ -92,7 +94,7 @@ PreRun:
 	for idx := range postRun {
 		var err error
 
-		step.Profile, err = postRun[idx](command, step.Profile, step.Events)
+		step.Profile, err = postRun[idx](command, step.Profile, step.Events, options...)
 		if err != nil {
 			return Result{Profile: &original}, err
 		}

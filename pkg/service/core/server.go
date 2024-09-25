@@ -12,6 +12,7 @@ import (
 	"github.com/ciphermountain/deadenz/pkg/components"
 	"github.com/ciphermountain/deadenz/pkg/data"
 	"github.com/ciphermountain/deadenz/pkg/middleware"
+	"github.com/ciphermountain/deadenz/pkg/opts"
 	"github.com/ciphermountain/deadenz/pkg/parse"
 	proto "github.com/ciphermountain/deadenz/pkg/proto/core"
 	"github.com/ciphermountain/deadenz/pkg/service/multiverse"
@@ -68,7 +69,7 @@ func (s *Server) Run(ctx context.Context, req *proto.RunRequest) (*proto.RunResp
 
 	profile := protoToProfile(req.GetProfile())
 
-	result, err := deadenz.RunActionCommand(command, &profile, s.loader, s.config, s.preCommands, s.postCommands)
+	result, err := deadenz.RunActionCommand(command, &profile, s.loader, s.config, s.preCommands, s.postCommands, opts.WithLanguage(req.Language))
 	if err != nil {
 		return &proto.RunResponse{
 			Response: &proto.Response{
@@ -131,7 +132,7 @@ func (s *Server) Load(_ context.Context, req *proto.LoadRequest) (*proto.Respons
 		}, nil
 	}
 
-	if err := s.loader.SetLoader(key, loader, parser); err != nil {
+	if err := s.loader.SetLoader(key, loader, parser, opts.WithLanguage(req.Language)); err != nil {
 		return &proto.Response{
 			Status:  proto.Status_Failure,
 			Message: err.Error(),
@@ -146,7 +147,7 @@ func (s *Server) Assets(ctx context.Context, req *proto.AssetRequest) (*proto.As
 	case proto.AssetType_ItemAsset:
 		var items []components.Item
 
-		if err := s.loader.LoadCtx(ctx, &items); err != nil {
+		if err := s.loader.LoadCtx(ctx, &items, opts.WithLanguage(req.Language)); err != nil {
 			resp := &proto.AssetResponse{
 				Response: &proto.Response{
 					Status:  proto.Status_Failure,
@@ -172,7 +173,7 @@ func (s *Server) Assets(ctx context.Context, req *proto.AssetRequest) (*proto.As
 	case proto.AssetType_CharacterAsset:
 		var characters []components.Character
 
-		if err := s.loader.LoadCtx(ctx, &characters); err != nil {
+		if err := s.loader.LoadCtx(ctx, &characters, opts.WithLanguage(req.Language)); err != nil {
 			resp := &proto.AssetResponse{
 				Response: &proto.Response{
 					Status:  proto.Status_Failure,

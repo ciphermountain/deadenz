@@ -3,19 +3,31 @@ package components
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 type CharacterSpawnEvent struct {
 	character Character
+	lang      LanguagePack
 }
 
-func NewCharacterSpawnEvent(character Character) *CharacterSpawnEvent {
+func NewCharacterSpawnEvent(character Character, opts ...opts.Option) *CharacterSpawnEvent {
+	lang := &language{}
+
+	for _, opt := range opts {
+		opt(lang)
+	}
+
 	return &CharacterSpawnEvent{
-		character: character}
+		character: character,
+		lang:      lang.lang}
 }
 
 func (e CharacterSpawnEvent) String() string {
-	return fmt.Sprintf("you spawned in as a %s", e.character.Name) // TODO: breaks multi-language support
+	return strings.ReplaceAll(e.lang.SpawninPattern, "{{character}}", e.character.Name)
 }
 
 func (e CharacterSpawnEvent) Type() CharacterType {
@@ -54,25 +66,39 @@ type jsonCharacterSpawnEvent struct {
 }
 
 type EarnedXPEvent struct {
-	xp uint
+	xp   uint
+	lang LanguagePack
 }
 
-func NewEarnedTokenEvent(xp uint) *EarnedTokenEvent {
-	return &EarnedTokenEvent{xp: xp}
+func NewEarnedXPEvent(xp uint, opts ...opts.Option) *EarnedXPEvent {
+	lang := &language{}
+
+	for _, opt := range opts {
+		opt(lang)
+	}
+
+	return &EarnedXPEvent{xp: xp, lang: lang.lang}
 }
 
 func (e EarnedXPEvent) String() string {
-	return fmt.Sprintf("you earned %d xp", e.xp) // TODO: breaks multi-language support
+	return strings.ReplaceAll(e.lang.EarnedXPPattern, "{{amount}}", strconv.FormatUint(uint64(e.xp), 10))
 }
 
 type EarnedTokenEvent struct {
-	xp uint
+	xp   uint
+	lang LanguagePack
 }
 
-func NewEarnedXPEvent(xp uint) *EarnedXPEvent {
-	return &EarnedXPEvent{xp: xp}
+func NewEarnedTokenEvent(xp uint, opts ...opts.Option) *EarnedTokenEvent {
+	lang := &language{}
+
+	for _, opt := range opts {
+		opt(lang)
+	}
+
+	return &EarnedTokenEvent{xp: xp, lang: lang.lang}
 }
 
 func (e EarnedTokenEvent) String() string {
-	return fmt.Sprintf("you earned %d tokens", e.xp) // TODO: breaks multi-language support
+	return strings.ReplaceAll(e.lang.EarnedTokenPattern, "{{amount}}", strconv.FormatUint(uint64(e.xp), 10))
 }

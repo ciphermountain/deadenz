@@ -5,19 +5,21 @@ import (
 
 	"github.com/ciphermountain/deadenz/internal/util"
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 var (
 	DefaultItemFindRate float64 = 0.5 // % of the time that will result in a findable item
 	DefaultDieRate      float64 = 0.3
-	ErrNotSpawnedIn             = errors.New("no active character. spawnin to begin") // TODO: breaks multi-language support
-	ErrBackpackTooSmall         = errors.New("not enough room in your backpack")      // TODO: breaks multi-language support
+	ErrNotSpawnedIn             = errors.New("[ERR-1000] no active character. spawnin to begin")
+	ErrBackpackTooSmall         = errors.New("[ERR-1001] not enough room in your backpack")
 )
 
 func Walk(
 	profile *components.Profile,
 	loader Loader,
 	conf Config,
+	options ...opts.Option,
 ) (*components.Profile, []components.Event, error) {
 	if profile.Active == nil {
 		return profile, nil, ErrNotSpawnedIn
@@ -25,7 +27,7 @@ func Walk(
 
 	which := util.Random(0, 1000)
 
-	var nextFunc func(*components.Profile, Loader, Config) (*components.Profile, []components.Event, error)
+	var nextFunc func(*components.Profile, Loader, Config, ...opts.Option) (*components.Profile, []components.Event, error)
 
 	// configured % of the time will result in a findable item
 	if which < int64(conf.ItemFindRate*1000) {
@@ -34,7 +36,7 @@ func Walk(
 		nextFunc = encounter
 	}
 
-	p, evts, err := nextFunc(profile, loader, conf)
+	p, evts, err := nextFunc(profile, loader, conf, options...)
 	if err != nil {
 		return profile, nil, err
 	}
@@ -44,8 +46,8 @@ func Walk(
 	// apply default earnings for all paths
 	evts = append(
 		evts,
-		components.NewEvent(components.NewEarnedXPEvent(uint(profile.Active.Multiplier))),
-		components.NewEvent(components.NewEarnedTokenEvent(uint(profile.Active.Multiplier*3))),
+		components.NewEvent(components.NewEarnedXPEvent(uint(profile.Active.Multiplier), options...)),
+		components.NewEvent(components.NewEarnedTokenEvent(uint(profile.Active.Multiplier*3), options...)),
 	)
 
 	profile.XP = profile.XP + uint(profile.Active.Multiplier)
@@ -54,9 +56,9 @@ func Walk(
 	return profile, evts, nil
 }
 
-func findItem(profile *components.Profile, loader Loader, _ Config) (*components.Profile, []components.Event, error) {
+func findItem(profile *components.Profile, loader Loader, _ Config, options ...opts.Option) (*components.Profile, []components.Event, error) {
 	var items []components.Item
-	if err := loader.Load(&items); err != nil {
+	if err := loader.Load(&items, options...); err != nil {
 		return profile, nil, err
 	}
 
@@ -68,7 +70,7 @@ func findItem(profile *components.Profile, loader Loader, _ Config) (*components
 	}
 
 	var decisions []components.ItemDecisionEvent
-	if err := loader.Load(&decisions); err != nil {
+	if err := loader.Load(&decisions, options...); err != nil {
 		return profile, nil, err
 	}
 
@@ -77,7 +79,7 @@ func findItem(profile *components.Profile, loader Loader, _ Config) (*components
 	randomItem := findableItems[idx]
 
 	evts := []components.Event{
-		components.NewEvent(components.NewFindEvent(randomItem)),
+		components.NewEvent(components.NewFindEvent(randomItem, options...)),
 	}
 
 	var err error
@@ -96,17 +98,17 @@ func findItem(profile *components.Profile, loader Loader, _ Config) (*components
 	return profile, append(evts, components.NewEvent(dec)), nil
 }
 
-func encounter(profile *components.Profile, loader Loader, conf Config) (*components.Profile, []components.Event, error) {
+func encounter(profile *components.Profile, loader Loader, conf Config, options ...opts.Option) (*components.Profile, []components.Event, error) {
 	var encounters []components.EncounterEvent
-	if err := loader.Load(&encounters); err != nil {
+	if err := loader.Load(&encounters, options...); err != nil {
 		return profile, nil, err
 	}
 
 	evts := []components.Event{
-		components.NewEvent(encounters[util.Random(0, int64(len(encounters)-1))]),
+		components.NewEvent(encounters[util.Random(0, int64(len(encounters)-1))].WithOpts(options...)),
 	}
 
-	p, e, err := action(profile, loader, conf)
+	p, e, err := action(profile, loader, conf, options...)
 	if err != nil {
 		return profile, nil, err
 	}
@@ -114,9 +116,9 @@ func encounter(profile *components.Profile, loader Loader, conf Config) (*compon
 	return p, append(evts, e...), nil
 }
 
-func action(profile *components.Profile, loader Loader, conf Config) (*components.Profile, []components.Event, error) {
+func action(profile *components.Profile, loader Loader, conf Config, options ...opts.Option) (*components.Profile, []components.Event, error) {
 	var actions []components.ActionEvent
-	if err := loader.Load(&actions); err != nil {
+	if err := loader.Load(&actions, options...); err != nil {
 		return profile, nil, err
 	}
 
@@ -124,7 +126,7 @@ func action(profile *components.Profile, loader Loader, conf Config) (*component
 		components.NewEvent(actions[util.Random(0, int64(len(actions)-1))]),
 	}
 
-	p, e, err := mutation(profile, loader, conf)
+	p, e, err := mutation(profile, loader, conf, options...)
 	if err != nil {
 		return profile, nil, err
 	}
@@ -132,14 +134,14 @@ func action(profile *components.Profile, loader Loader, conf Config) (*component
 	return p, append(evts, e...), nil
 }
 
-func mutation(profile *components.Profile, loader Loader, conf Config) (*components.Profile, []components.Event, error) {
+func mutation(profile *components.Profile, loader Loader, conf Config, options ...opts.Option) (*components.Profile, []components.Event, error) {
 	var live []components.LiveMutationEvent
-	if err := loader.Load(&live); err != nil {
+	if err := loader.Load(&live, options...); err != nil {
 		return profile, nil, err
 	}
 
 	var die []components.DieMutationEvent
-	if err := loader.Load(&die); err != nil {
+	if err := loader.Load(&die, options...); err != nil {
 		return profile, nil, err
 	}
 
