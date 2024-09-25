@@ -3,18 +3,28 @@ package components
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 type FindEvent struct {
 	Item Item
+	lang LanguagePack
 }
 
-func NewFindEvent(item Item) FindEvent {
-	return FindEvent{Item: item}
+func NewFindEvent(item Item, opts ...opts.Option) FindEvent {
+	lang := &language{}
+
+	for _, opt := range opts {
+		opt(lang)
+	}
+
+	return FindEvent{Item: item, lang: lang.lang}
 }
 
 func (e FindEvent) String() string {
-	return fmt.Sprintf("you find %s", e.Item.Name) // TODO: breaks multi-language support
+	return strings.ReplaceAll(e.lang.FindPattern, "{{item}}", e.Item.Name)
 }
 
 func (e FindEvent) MarshalJSON() ([]byte, error) {

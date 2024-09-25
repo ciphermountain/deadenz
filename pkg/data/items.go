@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 type ItemProvider struct {
@@ -16,9 +17,9 @@ func NewItemProviderFromLoader(loader *DataLoader) *ItemProvider {
 	}
 }
 
-func (p *ItemProvider) Item(iType components.ItemType) (*components.Item, error) {
+func (p *ItemProvider) Item(iType components.ItemType, options ...opts.Option) (*components.Item, error) {
 	var items []components.Item
-	if err := p.loader.Load(&items); err != nil {
+	if err := p.loader.Load(&items, options...); err != nil {
 		return nil, err
 	}
 
@@ -31,9 +32,9 @@ func (p *ItemProvider) Item(iType components.ItemType) (*components.Item, error)
 	return nil, errors.New("item not found")
 }
 
-func (p *ItemProvider) Items() ([]components.Item, error) {
+func (p *ItemProvider) Items(options ...opts.Option) ([]components.Item, error) {
 	var items []components.Item
-	if err := p.loader.Load(&items); err != nil {
+	if err := p.loader.Load(&items, options...); err != nil {
 		return nil, err
 	}
 

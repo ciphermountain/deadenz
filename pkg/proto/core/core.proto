@@ -17,6 +17,8 @@ message RunRequest {
         WalkCommand walk = 2;
         SpawninCommand spawnin = 3;
     };
+
+    string language = 4;
 }
 
 message WalkCommand {}
@@ -30,6 +32,8 @@ message LoadRequest {
         FileLoader fileLoader = 2;
         SQLLoader sqlLoader = 3;
     }
+
+    string language = 4;
 }
 
 message FileLoader {
@@ -42,6 +46,7 @@ message SQLLoader {
 
 message AssetRequest {
     AssetType type = 1;
+    string language = 2;
 }
 
 message RunResponse {

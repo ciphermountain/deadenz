@@ -13,6 +13,7 @@ import (
 	"github.com/ciphermountain/deadenz/pkg/middleware"
 	middlewaremocks "github.com/ciphermountain/deadenz/pkg/middleware/mocks"
 	"github.com/ciphermountain/deadenz/pkg/mocks"
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 func TestRunActionCommand_Traps(t *testing.T) {
@@ -26,7 +27,7 @@ func TestRunActionCommand_Traps(t *testing.T) {
 	}
 
 	mTraps := new(middlewaremocks.MockTrapProvider)
-	mTraps.EXPECT().TripRandom(profile).Return(components.Trap{Message: trapMessage}, nil)
+	mTraps.EXPECT().TripRandom(profile, mock.AnythingOfType("opts.Option")).Return(components.Trap{Message: trapMessage}, nil)
 
 	// test that a combination of the trap tripper middleware
 	// with the walk death event and death active item middleware
@@ -43,6 +44,7 @@ func TestRunActionCommand_Traps(t *testing.T) {
 			middleware.WalkDeathEventMiddleware(),
 			middleware.DeathActiveItemMiddleware(nil),
 		},
+		opts.WithLanguage("en"),
 	)
 
 	require.NoError(t, err)
@@ -65,7 +67,7 @@ func TestRunActionCommand_Die(t *testing.T) {
 		Backpack:      []components.ItemType{1, 2, 3},
 	}
 
-	encounters := []components.EncounterEvent{components.NewEncounterEvent("a wolf")}
+	encounters := []components.EncounterEvent{components.NewEncounterEvent("a wolf", opts.WithLanguage("en"))}
 	actions := []components.ActionEvent{components.NewActionEvent("an action")}
 	liveEvts := []components.LiveMutationEvent{}
 	dieEvts := []components.DieMutationEvent{components.NewDieMutationEvent("a death")}
@@ -75,7 +77,7 @@ func TestRunActionCommand_Die(t *testing.T) {
 	// encounter event
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.EncounterEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(encounters))
 
 		return nil
@@ -84,7 +86,7 @@ func TestRunActionCommand_Die(t *testing.T) {
 	// action event
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.ActionEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(actions))
 
 		return nil
@@ -93,7 +95,7 @@ func TestRunActionCommand_Die(t *testing.T) {
 	// live events
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.LiveMutationEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(liveEvts))
 
 		return nil
@@ -102,7 +104,7 @@ func TestRunActionCommand_Die(t *testing.T) {
 	// die events
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.DieMutationEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(dieEvts))
 
 		return nil
@@ -123,6 +125,7 @@ func TestRunActionCommand_Die(t *testing.T) {
 			middleware.WalkDeathEventMiddleware(),
 			middleware.DeathActiveItemMiddleware(nil),
 		},
+		opts.WithLanguage("en"),
 	)
 
 	require.NoError(t, err)
@@ -150,7 +153,7 @@ func TestRunActionCommand_Live(t *testing.T) {
 		Backpack:      []components.ItemType{1, 2, 3},
 	}
 
-	encounters := []components.EncounterEvent{components.NewEncounterEvent("a wolf")}
+	encounters := []components.EncounterEvent{components.NewEncounterEvent("a wolf", opts.WithLanguage("lang"))}
 	actions := []components.ActionEvent{components.NewActionEvent("an action")}
 	liveEvts := []components.LiveMutationEvent{components.NewLiveMutationEvent("living")}
 	dieEvts := []components.DieMutationEvent{}
@@ -160,7 +163,7 @@ func TestRunActionCommand_Live(t *testing.T) {
 	// encounter event
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.EncounterEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(encounters))
 
 		return nil
@@ -169,7 +172,7 @@ func TestRunActionCommand_Live(t *testing.T) {
 	// action event
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.ActionEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(actions))
 
 		return nil
@@ -178,7 +181,7 @@ func TestRunActionCommand_Live(t *testing.T) {
 	// live events
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.LiveMutationEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(liveEvts))
 
 		return nil
@@ -187,7 +190,7 @@ func TestRunActionCommand_Live(t *testing.T) {
 	// die events
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.DieMutationEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(dieEvts))
 
 		return nil
@@ -208,6 +211,7 @@ func TestRunActionCommand_Live(t *testing.T) {
 			middleware.WalkDeathEventMiddleware(),
 			middleware.DeathActiveItemMiddleware(nil),
 		},
+		opts.WithLanguage("en"),
 	)
 
 	require.NoError(t, err)
@@ -243,7 +247,7 @@ func TestRunActionCommand_Find(t *testing.T) {
 	// find event
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.Item{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(finds))
 
 		return nil
@@ -252,7 +256,7 @@ func TestRunActionCommand_Find(t *testing.T) {
 	// decision event
 	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
 		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.ItemDecisionEvent{})
-	})).RunAndReturn(func(i any) error {
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
 		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(decisions))
 
 		return nil
@@ -273,6 +277,7 @@ func TestRunActionCommand_Find(t *testing.T) {
 			middleware.WalkDeathEventMiddleware(),
 			middleware.DeathActiveItemMiddleware(nil),
 		},
+		opts.WithLanguage("en"),
 	)
 
 	require.NoError(t, err)
@@ -288,4 +293,56 @@ func TestRunActionCommand_Find(t *testing.T) {
 	assert.Equal(t, "keep", result.Events[1].String())
 	assert.Equal(t, "you earned 1 xp", result.Events[2].String())
 	assert.Equal(t, "you earned 3 tokens", result.Events[3].String())
+}
+
+func TestRunActionCommand_Spawnin(t *testing.T) {
+	t.Parallel()
+
+	profile := &components.Profile{
+		Active:        nil,
+		BackpackLimit: 10,
+		Backpack:      []components.ItemType{},
+	}
+
+	characters := []components.Character{{Type: components.CharacterType(42), Name: "item", Multiplier: 8}}
+	mLoader := new(mocks.MockLoader)
+
+	// character load
+	mLoader.EXPECT().Load(mock.MatchedBy(func(val interface{}) bool {
+		return reflect.TypeOf(val) == reflect.TypeOf(&[]components.Character{})
+	}), mock.AnythingOfType("opts.Option")).RunAndReturn(func(i any, _ ...opts.Option) error {
+		reflect.Indirect(reflect.ValueOf(i)).Set(reflect.ValueOf(characters))
+
+		return nil
+	})
+
+	// test that a combination of the trap tripper middleware
+	// with the walk death event and death active item middleware
+	// that tripping traps functions correctly
+	result, err := deadenz.RunActionCommand(
+		deadenz.SpawninCommandType,
+		profile,
+		mLoader,
+		deadenz.Config{
+			ItemFindRate: 1.0,
+		},
+		[]deadenz.PreRunFunc{},
+		[]deadenz.PostRunFunc{
+			middleware.WalkDeathEventMiddleware(),
+			middleware.DeathActiveItemMiddleware(nil),
+		},
+		opts.WithLanguage("en"),
+	)
+
+	require.NoError(t, err)
+	require.NotNil(t, result.Profile)
+
+	assert.Equal(t, deadenz.WalkCommandType, result.DefaultCmd, "expect walk as next command")
+	assert.NotNil(t, result.Profile.Active)
+	assert.Len(t, result.Profile.Backpack, 0)
+
+	require.Len(t, result.Events, 2)
+
+	assert.Equal(t, "you spawned in as a item", result.Events[0].String())
+	assert.Equal(t, "you earned 8 xp", result.Events[1].String())
 }

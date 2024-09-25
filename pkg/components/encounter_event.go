@@ -3,18 +3,32 @@ package components
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 type EncounterEvent struct {
 	value string
+	lang  LanguagePack
 }
 
-func NewEncounterEvent(value string) EncounterEvent {
-	return EncounterEvent{value: value}
+func NewEncounterEvent(value string, opts ...opts.Option) EncounterEvent {
+	lang := &language{}
+
+	for _, opt := range opts {
+		opt(lang)
+	}
+
+	return EncounterEvent{value: value, lang: lang.lang}
+}
+
+func (e EncounterEvent) WithOpts(opts ...opts.Option) EncounterEvent {
+	return NewEncounterEvent(e.value, opts...)
 }
 
 func (e EncounterEvent) String() string {
-	return e.value
+	return strings.ReplaceAll(e.lang.EncounterPattern, "{{encounter}}", e.value)
 }
 
 func (e EncounterEvent) MarshalJSON() ([]byte, error) {

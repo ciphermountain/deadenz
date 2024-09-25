@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 type TrapProvider struct {
@@ -16,7 +17,7 @@ func NewTrapProviderFromLoader(loader *DataLoader) *TrapProvider {
 	}
 }
 
-func (p *TrapProvider) Traps(profile *components.Profile) ([]components.Trap, error) {
+func (p *TrapProvider) Traps(profile *components.Profile, _ ...opts.Option) ([]components.Trap, error) {
 	var traps []components.Trap
 	if err := p.loader.Load(&traps); err != nil {
 		return nil, err
@@ -33,6 +34,6 @@ func (p *TrapProvider) Traps(profile *components.Profile) ([]components.Trap, er
 	return set, nil
 }
 
-func (p *TrapProvider) TripRandom(*components.Profile) (components.Trap, error) {
+func (p *TrapProvider) TripRandom(_ *components.Profile, _ ...opts.Option) (components.Trap, error) {
 	return components.Trap{}, errors.New("unimplemented")
 }

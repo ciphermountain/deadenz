@@ -8,6 +8,7 @@ import (
 
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 var (
@@ -16,13 +17,13 @@ var (
 )
 
 type ItemProvider interface {
-	Item(components.ItemType) (*components.Item, error)
-	Items() ([]components.Item, error)
+	Item(components.ItemType, ...opts.Option) (*components.Item, error)
+	Items(...opts.Option) ([]components.Item, error)
 }
 
 // WalkLimiter applies defined limits to the walk command usage on a profile
 func WalkLimiter(hourlyLimit uint16, items ItemProvider) deadenz.PreRunFunc {
-	return func(cmd deadenz.CommandType, profile *components.Profile) (*components.Profile, error) {
+	return func(cmd deadenz.CommandType, profile *components.Profile, options ...opts.Option) (*components.Profile, error) {
 		if cmd != deadenz.WalkCommandType {
 			return profile, nil
 		}
@@ -35,7 +36,7 @@ func WalkLimiter(hourlyLimit uint16, items ItemProvider) deadenz.PreRunFunc {
 
 		// if active item can extend limit, use it
 		if profile.ActiveItem != nil {
-			if item, err := items.Item(*profile.ActiveItem); err == nil {
+			if item, err := items.Item(*profile.ActiveItem, options...); err == nil {
 				if item.IsUsable() {
 					usable := item.AsUsableItem()
 
@@ -80,7 +81,7 @@ func WalkLimiter(hourlyLimit uint16, items ItemProvider) deadenz.PreRunFunc {
 }
 
 func WalkStatBuilder(items ItemProvider, cmds ...deadenz.CommandType) deadenz.PreRunFunc {
-	return func(cmd deadenz.CommandType, profile *components.Profile) (*components.Profile, error) {
+	return func(cmd deadenz.CommandType, profile *components.Profile, options ...opts.Option) (*components.Profile, error) {
 		var found bool
 
 		for _, c := range cmds {
@@ -97,7 +98,7 @@ func WalkStatBuilder(items ItemProvider, cmds ...deadenz.CommandType) deadenz.Pr
 			return profile, nil
 		}
 
-		item, err := items.Item(*profile.ActiveItem)
+		item, err := items.Item(*profile.ActiveItem, options...)
 		if err != nil {
 			return profile, nil
 		}
@@ -112,7 +113,7 @@ func WalkStatBuilder(items ItemProvider, cmds ...deadenz.CommandType) deadenz.Pr
 }
 
 func WalkDeathEventMiddleware() deadenz.PostRunFunc {
-	return func(_ deadenz.CommandType, profile *components.Profile, evts []components.Event) (*components.Profile, error) {
+	return func(_ deadenz.CommandType, profile *components.Profile, evts []components.Event, _ ...opts.Option) (*components.Profile, error) {
 		if profile.Active == nil {
 			return profile, nil
 		}

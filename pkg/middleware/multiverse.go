@@ -6,6 +6,7 @@ import (
 
 	deadenz "github.com/ciphermountain/deadenz/pkg"
 	"github.com/ciphermountain/deadenz/pkg/components"
+	"github.com/ciphermountain/deadenz/pkg/opts"
 )
 
 type EventPublisher interface {
@@ -13,7 +14,7 @@ type EventPublisher interface {
 }
 
 func PublishEventsToMultiverse(client EventPublisher) deadenz.PostRunFunc {
-	return func(cmd deadenz.CommandType, profile *components.Profile, evts []components.Event) (*components.Profile, error) {
+	return func(cmd deadenz.CommandType, profile *components.Profile, evts []components.Event, _ ...opts.Option) (*components.Profile, error) {
 		// passthrough if not walk or spawnin command
 		if cmd != deadenz.WalkCommandType && cmd != deadenz.SpawninCommandType {
 			return profile, nil
