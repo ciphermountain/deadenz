@@ -59,6 +59,10 @@
   {
     "name": "a bigger backpack",
     "findable": true,
+    "usability": {
+      "single_use": true,
+      "save_backpack_items": 20
+    },
     "mutators": [{"type": "backpack_limit", "limit": 40}, {"type": "stats", "stat_name": "skill", "mutation": "1"}]
   },
   {"name": "giant scissors", "findable": true},
