@@ -21,7 +21,7 @@ func TestDataLoader(t *testing.T) {
 	loadedType := reflect.TypeOf([]string{})
 	loader := new(mocks.MockLoader)
 
-	dataLoader.SetLoader(loadedType, loader, json.Unmarshal)
+	require.NoError(t, dataLoader.SetLoader(loadedType, loader, json.Unmarshal))
 	loader.EXPECT().Data(mock.Anything).Return(encoded, nil)
 
 	var output []string
@@ -44,7 +44,7 @@ func TestDataLoader_WithReloadInterval(t *testing.T) {
 	loadedType := reflect.TypeOf([]string{})
 	loader := new(mocks.MockLoader)
 
-	dataLoader.SetLoader(loadedType, loader, json.Unmarshal, data.WithReloadInterval(500*time.Millisecond))
+	require.NoError(t, dataLoader.SetLoader(loadedType, loader, json.Unmarshal, data.WithReloadInterval(500*time.Millisecond)))
 
 	var loaded atomic.Bool
 

@@ -9,6 +9,9 @@ GOPACKAGES = $(shell go list ./...)
 
 all: dependencies build
 
+lint:
+	golangci-lint run
+
 dependencies:
 	go mod download
 

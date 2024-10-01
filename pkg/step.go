@@ -81,7 +81,6 @@ PreRun:
 
 			// TODO: make a better message
 			step.Events = append(step.Events, components.NewEvent(components.NewItemDecisionEvent("your backpack is too small")))
-			err = nil
 		}
 
 		step.DefaultCmd = WalkCommandType
