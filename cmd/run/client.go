@@ -97,10 +97,10 @@ func runActionCommand(
 
 	switch input {
 	case deadenz.SpawninCommandType:
-		events, profile, err = client.Spawnin(context.Background(), profile)
+		events, _, err = client.Spawnin(context.Background(), profile)
 		next = deadenz.WalkCommandType
 	case deadenz.WalkCommandType:
-		events, profile, err = client.Walk(context.Background(), profile)
+		events, _, err = client.Walk(context.Background(), profile)
 		next = deadenz.WalkCommandType
 
 		if profile.Active == nil {
