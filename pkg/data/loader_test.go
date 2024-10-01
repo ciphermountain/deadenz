@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"reflect"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -45,13 +46,13 @@ func TestDataLoader_WithReloadInterval(t *testing.T) {
 
 	dataLoader.SetLoader(loadedType, loader, json.Unmarshal, data.WithReloadInterval(500*time.Millisecond))
 
-	var loaded bool
+	var loaded atomic.Bool
 
 	loader.EXPECT().Data(mock.Anything).RunAndReturn(func(ctx context.Context) ([]byte, error) {
-		if loaded {
+		if loaded.Load() {
 			return encoded, nil
 		} else {
-			loaded = true
+			loaded.Store(true)
 
 			return json.Marshal([]string{"zero", "one", "two"})
 		}

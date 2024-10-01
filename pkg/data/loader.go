@@ -174,7 +174,11 @@ func (l *DataLoader) run() {
 		select {
 		case <-ticker.C:
 			// search configs and run loaders
-			for key, reloader := range l.reloaders {
+			l.mu.RLock()
+			reloaders := l.reloaders
+			l.mu.RUnlock()
+
+			for key, reloader := range reloaders {
 				if reloader.Reload() {
 					reloader.BlockReload()
 					go func(ctx context.Context, key string, reloader reloadConfig) {

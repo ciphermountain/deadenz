@@ -12,8 +12,19 @@ all: dependencies build
 dependencies:
 	go mod download
 
+coverage:
+	@go test -coverprofile coverage.out.tmp -covermode count $(GOPACKAGES)
+	cat coverage.out.tmp | grep -v "mocks" > coverage.out && rm coverage.out.tmp
+	@go tool cover -func coverage.out
+
 test: dependencies
 	@go test -v $(GOPACKAGES)
+
+race: fmt
+	@go test -race -timeout=30s $(GOPACKAGES)
+
+updatedeps:
+	@go list -u -m -json all | go-mod-outdated -update -direct -ci
 
 benchmark: dependencies fmt
 	@go test $(GOPACKAGES) -bench=.
