@@ -24,7 +24,7 @@
     "name": "a walking stick",
     "description": "don't get tired as easily",
     "purchasable": true,
-    "price": 2000,
+    "price": 100,
     "findable": false,
     "usability": {
       "improves_walking": true,
@@ -61,7 +61,7 @@
     "findable": true,
     "usability": {
       "single_use": true,
-      "save_backpack_items": 20
+      "save_backpack_items": 40
     },
     "mutators": [{"type": "backpack_limit", "limit": 40}, {"type": "stats", "stat_name": "skill", "mutation": "1"}]
   },
