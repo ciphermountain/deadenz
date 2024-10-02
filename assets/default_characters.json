@@ -110,4 +110,16 @@
   "type": 28,
   "name": "Slice of moldy pizza at the bottom of a Chuck-E-Cheese ballpit that one 2 year old ate and is now in the hospital",
   "multiplier": 1
+},{
+  "type": 29,
+  "name": "Pencil",
+  "multiplier": 1
+},{
+  "type": 30,
+  "name": "Ball of String",
+  "multiplier": 1
+},{
+  "type": 31,
+  "name": "Gummy Bear",
+  "multiplier": 1
 }]

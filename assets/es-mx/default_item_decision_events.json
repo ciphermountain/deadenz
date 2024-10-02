@@ -1,0 +1,15 @@
+[
+	{"type": "item_decision", "message": "lo agregas a tu mochila", "addToBackpack": true},
+	{"type": "item_decision", "message": "lo ignoras", "addToBackpack": false},
+	{"type": "item_decision", "message": "te lo comes", "addToBackpack": false},
+	{"type": "item_decision", "message": "lo miras con curiosidad", "addToBackpack": false},
+	{"type": "item_decision", "message": "Le echas agua encima", "addToBackpack": false},
+	{"type": "item_decision", "message": "imaginas que es un micrófono y cantas", "addToBackpack": false},
+	{"type": "item_decision", "message": "lo confundes con una botella de agua y bebes de ella", "addToBackpack": false},
+	{"type": "item_decision", "message": "lo quemas", "addToBackpack": false},
+	{"type": "item_decision", "message": "lo tiras a la basura", "addToBackpack": false},
+	{"type": "item_decision", "message": "juegas fútbol con él", "addToBackpack": false},
+	{"type": "item_decision", "message": "se lo das de comer a tu tigre mascota en Oklahoma", "addToBackpack": false},
+	{"type": "item_decision", "message": "lo arrojas a tu mejor amigo", "addToBackpack": false},
+	{"type": "item_decision", "message": "lo lanzaste al espacio", "addToBackpack": false}
+]

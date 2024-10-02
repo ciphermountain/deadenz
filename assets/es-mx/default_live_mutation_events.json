@@ -1,0 +1,22 @@
+[
+	{ "type": "mutation", "message": "te conviertes en un pez", "isDeath": false, "swap_character": true, "character": 7 },
+	{ "type": "mutation", "message": "te conviertes en un lapiz", "isDeath": false, "swap_character": true, "character": 29 },
+	{ "type": "mutation", "message": "te conviertes en una sirena invertida", "isDeath": false, "swap_character": true, "character": 10 },
+	{ "type": "mutation", "message": "te conviertes en una bola de hilo", "isDeath": false, "swap_character": true, "character": 30 },
+	{ "type": "mutation", "message": "te conviertes en un osito de goma", "isDeath": false, "swap_character": true, "character": 31 },
+	{ "type": "mutation", "message": "sobrevives a un encuentro mortal", "isDeath": false },
+	{ "type": "mutation", "message": "te das cuenta de que también es un nerd amante de los cómics como tú y haces un nuevo amigo", "isDeath": false },
+	{ "type": "mutation", "message": "te obligan a cantar una canción que no conoces", "isDeath": false },
+	{ "type": "mutation", "message": "recibes carbón para Navidad", "isDeath": false },
+	{ "type": "mutation", "message": "te sientes sorprendido de que no haya pasado nada", "isDeath": false },
+	{ "type": "mutation", "message": "obtienes un 5 en geografía", "isDeath": false },
+	{ "type": "mutation", "message": "recibes un reconocimiento de tu querido y viejo padre", "isDeath": false },
+	{ "type": "mutation", "message": "descubres una nueva y extraña adicción", "isDeath": false },
+	{ "type": "mutation", "message": "descubres una nueva y extraña obsesión", "isDeath": false },
+	{ "type": "mutation", "message": "aprendes una nueva habilidad", "isDeath": false },
+	{ "type": "mutation", "message": "te queda una mancha de pizza permanente en el labio superior", "isDeath": false },
+	{ "type": "mutation", "message": "te dan un billete de ida en primera clase a Albuquerque", "isDeath": false },
+	{ "type": "mutation", "message": "descubres que tus pedos de terror te salvaron la vida", "isDeath": false },
+	{ "type": "mutation", "message": "salís de la situación haciendo el paso lunar", "isDeath": false },
+	{ "type": "mutation", "message": "aprovechas la confusión y huyes sano y salvo", "isDeath": false }
+]

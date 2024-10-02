@@ -133,10 +133,5 @@
     "type": "mutation",
     "message": "it throws you into a skateboarding pit, you are run over and you die",
     "isDeath": true
-  },
-	{
-    "type": "mutation",
-    "message": "la cosa se dice que tu eres una idiota, y tu mueres",
-    "isDeath": true
   }
 ]

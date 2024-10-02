@@ -145,9 +145,28 @@ func mutation(profile *components.Profile, loader Loader, conf Config, options .
 		return profile, nil, err
 	}
 
-	evts := []components.Event{
-		newRandomMutationEvent(live, die, conf.DeathRate),
+	evt := newRandomMutationEvent(live, die, conf.DeathRate)
+
+	if typed, ok := evt.Typed().(components.LiveMutationEvent); ok {
+		// do conversion event from one character type to another
+		if ch := typed.ToCharacter(); ch != nil {
+			var characters []components.Character
+			if err := loader.Load(&characters, options...); err != nil {
+				return profile, nil, err
+			}
+
+			for _, char := range characters {
+				if char.Type == *ch {
+					profile.Active = &char
+
+					break
+				}
+			}
+
+		}
 	}
+
+	evts := []components.Event{evt}
 
 	return profile, evts, nil
 }
