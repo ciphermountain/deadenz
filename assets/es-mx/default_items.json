@@ -1,0 +1,101 @@
+[
+  {
+    "name": "una bebida energética",
+    "description": "recuperar un poco de energía",
+    "purchasable": true,
+    "price": 5,
+    "findable": false,
+    "usability": {
+      "single_use": true,
+      "efficiency": {"stat": "wit", "scale": 5000}
+    },
+    "mutators": [{"type": "stats", "stat_name": "humor", "mutation": "1"}, {"type": "walk_limit"}]
+  },
+  {
+    "name": "un casillero",
+    "description": "protege tus artículos si mueres",
+    "purchasable": true,
+    "price": 50,
+    "findable": false,
+    "usability": {"save_backpack_items": 10},
+    "mutators": [{"type": "stats", "stat_name": "skill", "mutation": "1"}]
+  },
+  {
+    "name": "un bastón para caminar",
+    "description": "no te canses tan fácilmente",
+    "purchasable": true,
+    "price": 100,
+    "findable": false,
+    "usability": {
+      "improves_walking": true,
+      "efficiency": {"stat": "skill", "scale": 10000}
+    },
+    "mutators": [{"type": "stats", "stat_name": "wit", "mutation": "1"}]
+  },
+  {
+    "name": "una trampa para osos",
+    "description": "atrapa a tus enemigos",
+    "purchasable": true,
+    "price": 200,
+    "findable": true,
+    "usability": {
+      "single_use": true,
+      "trap": true,
+      "emits_event": {
+        "type": "mutation",
+        "message": "pisaste una trampa para osos y moriste",
+        "isDeath": true,
+        "trap": true
+      }
+    },
+    "mutators": [
+      {"type": "stats", "stat_name": "skill", "mutation": "1"},
+      {"type": "stats", "stat_name": "wit", "mutation": "1"}
+    ]
+  },
+  {
+    "name": "una mochila grande",
+    "findable": true,
+    "usability": {
+      "single_use": true,
+      "save_backpack_items": 40
+    },
+    "mutators": [{"type": "backpack_limit", "limit": 40}, {"type": "stats", "stat_name": "skill", "mutation": "1"}]
+  },
+  {"name": "un sandwich", "findable": true},
+  {"name": "un rubí", "findable": true},
+  {"name": "una espada", "findable": true},
+  {"name": "tijeras gigantes", "findable": true},
+  {"name": "un error tipográfico", "findable": true},
+  {"name": "una playera Xifer", "findable": true},
+  {"name": "an manzana", "findable": true},
+  {"name": "una reliquia Maya", "findable": true},
+  {"name": "una banderilla", "findable": true},
+  {"name": "un cheeto", "findable": true},
+  {"name": "una pizza entera", "findable": true},
+  {"name": "un pan de muerto", "findable": true},
+  {"name": "una lupa", "findable": true},
+  {"name": "un craneo", "findable": true},
+  {"name": "la mona lisa", "findable": true},
+  {"name": "una mermelada", "findable": true},
+  {"name": "una sudadera Xifer", "findable": true},
+  {"name": "stickers de Xifer", "findable": true},
+  {"name": "una dona", "findable": true},
+  {"name": "un chile habanero", "findable": true},
+  {"name": "un hueso", "findable": true},
+  {"name": "unos calzones sucios", "findable": true},
+  {"name": "una galleta mordida", "findable": true},
+  {"name": "lentes del sol rotos", "findable": true},
+  {"name": "un sandwich delicioso", "findable": true},
+  {"name": "un libro de chistes", "findable": true},
+  {"name": "corta uñas", "findable": true},
+  {"name": "una lata de spray para osos", "findable": true},
+  {"name": "una bola de estambre", "findable": true},
+  {"name": "una ensalada", "findable": true},
+  {"name": "la caja de Pandora", "findable": true},
+  {"name": "una cabra NFT súper genial", "findable": true},
+  {"name": "una cabra loca", "findable": true},
+  {"name": "una pluma de Xifer", "findable": true},
+  {"name": "un borracho", "findable": true},
+  {"name": "un pan dulce con chile", "findable": true}
+]

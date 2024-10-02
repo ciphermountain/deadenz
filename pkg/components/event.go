@@ -105,10 +105,12 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 
 func unmarshalMutationEvent(data []byte) (any, error) {
 	type action struct {
-		Message   string  `json:"message"`
-		IsDeath   bool    `json:"isDeath"`
-		Character *uint64 `json:"character_type"`
-		Trap      bool    `json:"trap"`
+		Message       string  `json:"message"`
+		IsDeath       bool    `json:"isDeath"`
+		SwapCharacter bool    `json:"swap_character"`
+		Character     *uint64 `json:"character_type"`
+		Multiverse    bool    `json:"multiverse"`
+		Trap          bool    `json:"trap"`
 	}
 
 	var loaded action
@@ -122,7 +124,7 @@ func unmarshalMutationEvent(data []byte) (any, error) {
 			return NewTripTrapMutationEvent(loaded.Message), nil
 		}
 
-		evt := NewDieMutationEvent(loaded.Message)
+		evt := NewDieMutationEvent(loaded.Message, loaded.Multiverse)
 
 		if loaded.Character != nil {
 			return NewDieMutationEventWithCharacter(
@@ -134,5 +136,12 @@ func unmarshalMutationEvent(data []byte) (any, error) {
 		return evt, nil
 	}
 
-	return NewLiveMutationEvent(loaded.Message), nil
+	var ch *CharacterType
+
+	if loaded.SwapCharacter && loaded.Character != nil {
+		val := CharacterType(*loaded.Character)
+		ch = &val
+	}
+
+	return NewLiveMutationEvent(loaded.Message, ch), nil
 }

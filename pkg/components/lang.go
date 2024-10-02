@@ -28,10 +28,10 @@ var eventLangPatterns = map[string]LanguagePack{
 	"en": defaultLanguagePack,
 	"es": {
 		FindPattern:        "encuentras {{item}}",
-		SpawninPattern:     "apareces como un {{character}}",
-		EarnedXPPattern:    "te lo ganaste {{amount}} xp",
-		EarnedTokenPattern: "te lo ganaste {{amount}} fichas",
-		EncounterPattern:   "encuentras {{encounter}}",
+		SpawninPattern:     "apareces como {{character}}",
+		EarnedXPPattern:    "te ganaste {{amount}} xp",
+		EarnedTokenPattern: "te ganaste {{amount}} fichas",
+		EncounterPattern:   "encuentras con {{encounter}}",
 	},
 }
 

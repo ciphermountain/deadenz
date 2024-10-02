@@ -7,12 +7,14 @@ import (
 )
 
 type DieMutationEvent struct {
-	value string
+	value               string
+	publishToMultiverse bool
 }
 
-func NewDieMutationEvent(value string) DieMutationEvent {
+func NewDieMutationEvent(value string, publishToMultiverse bool) DieMutationEvent {
 	return DieMutationEvent{
-		value: value,
+		value:               value,
+		publishToMultiverse: publishToMultiverse,
 	}
 }
 
@@ -20,11 +22,16 @@ func (e DieMutationEvent) String() string {
 	return e.value
 }
 
+func (e DieMutationEvent) PublishToMultiverse() bool {
+	return e.publishToMultiverse
+}
+
 func (e DieMutationEvent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(jsonMutationEvent{
-		Type:    string(EventTypeMutation),
-		Message: e.value,
-		IsDeath: true,
+		Type:       string(EventTypeMutation),
+		Message:    e.value,
+		IsDeath:    true,
+		Multiverse: e.publishToMultiverse,
 	})
 }
 
@@ -39,7 +46,8 @@ func (e *DieMutationEvent) UnmarshalJSON(data []byte) error {
 	}
 
 	*e = DieMutationEvent{
-		value: formatted.Message,
+		value:               formatted.Message,
+		publishToMultiverse: formatted.Multiverse,
 	}
 
 	return nil
@@ -63,10 +71,11 @@ func (e DieMutationEventWithCharacter) String() string {
 
 func (e DieMutationEventWithCharacter) MarshalJSON() ([]byte, error) {
 	formatted := jsonMutationEvent{
-		Type:      string(EventTypeMutation),
-		Message:   e.Death.value,
-		IsDeath:   true,
-		Character: (*uint64)(&e.Character),
+		Type:       string(EventTypeMutation),
+		Message:    e.Death.value,
+		IsDeath:    true,
+		Multiverse: true,
+		Character:  (*uint64)(&e.Character),
 	}
 
 	return json.Marshal(formatted)
@@ -90,7 +99,8 @@ func (e *DieMutationEventWithCharacter) UnmarshalJSON(data []byte) error {
 	*e = DieMutationEventWithCharacter{
 		Character: CharacterType(*formatted.Character),
 		Death: DieMutationEvent{
-			value: formatted.Message,
+			value:               formatted.Message,
+			publishToMultiverse: true,
 		},
 	}
 
@@ -98,12 +108,14 @@ func (e *DieMutationEventWithCharacter) UnmarshalJSON(data []byte) error {
 }
 
 type LiveMutationEvent struct {
-	value string
+	value     string
+	character *CharacterType
 }
 
-func NewLiveMutationEvent(value string) LiveMutationEvent {
+func NewLiveMutationEvent(value string, character *CharacterType) LiveMutationEvent {
 	return LiveMutationEvent{
-		value: value,
+		value:     value,
+		character: character,
 	}
 }
 
@@ -111,11 +123,21 @@ func (e LiveMutationEvent) String() string {
 	return e.value
 }
 
+func (e LiveMutationEvent) ToCharacter() *CharacterType {
+	return e.character
+}
+
 func (e LiveMutationEvent) MarshalJSON() ([]byte, error) {
 	formatted := jsonMutationEvent{
-		Type:    string(EventTypeMutation),
-		Message: e.value,
-		IsDeath: false,
+		Type:          string(EventTypeMutation),
+		Message:       e.value,
+		IsDeath:       false,
+		SwapCharacter: e.character != nil,
+	}
+
+	if e.character != nil {
+		chID := uint64(*e.character)
+		formatted.Character = &chID
 	}
 
 	return json.Marshal(formatted)
@@ -135,19 +157,28 @@ func (e *LiveMutationEvent) UnmarshalJSON(data []byte) error {
 		return ErrNotLiveEvent
 	}
 
-	*e = LiveMutationEvent{
+	evt := LiveMutationEvent{
 		value: formatted.Message,
 	}
+
+	if formatted.SwapCharacter && formatted.Character != nil {
+		tp := CharacterType(*formatted.Character)
+		evt.character = &tp
+	}
+
+	*e = evt
 
 	return nil
 }
 
 type jsonMutationEvent struct {
-	Type      string  `json:"type"`
-	Message   string  `json:"message"`
-	IsDeath   bool    `json:"isDeath"`
-	Trap      bool    `json:"trap"`
-	Character *uint64 `json:"character_type,omitempty"`
+	Type          string  `json:"type"`
+	Message       string  `json:"message"`
+	IsDeath       bool    `json:"isDeath"`
+	SwapCharacter bool    `json:"swap_character"`
+	Multiverse    bool    `json:"multiverse"`
+	Trap          bool    `json:"trap"`
+	Character     *uint64 `json:"character_type,omitempty"`
 }
 
 type TripTrapMutationEvent struct {

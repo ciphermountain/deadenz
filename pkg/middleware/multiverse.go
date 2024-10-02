@@ -32,7 +32,9 @@ func publishEvents(profile *components.Profile, evts []components.Event, client 
 	for _, evt := range evts {
 		switch typed := evt.Typed().(type) {
 		case components.DieMutationEvent:
-			_ = marshalAndSend(components.NewDieMutationEventWithCharacter(*profile.Active, typed), client, profile.UUID)
+			if typed.PublishToMultiverse() {
+				_ = marshalAndSend(components.NewDieMutationEventWithCharacter(*profile.Active, typed), client, profile.UUID)
+			}
 		case components.CharacterSpawnEvent: // only spawn and die events are supported
 			_ = marshalAndSend(typed, client, profile.UUID)
 		default:
