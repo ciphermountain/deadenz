@@ -4,35 +4,35 @@
     "message": "you turn into a fish",
     "isDeath": false,
     "swap_character": true,
-    "character": 7
+    "character_type": 7
   },
 	{
     "type": "mutation",
     "message": "you turn into a pencil",
     "isDeath": false,
     "swap_character": true,
-    "character": 29
+    "character_type": 29
   },
 	{
     "type": "mutation",
     "message": "you turn into an inverted mermaid",
     "isDeath": false,
     "swap_character": true,
-    "character": 10
+    "character_type": 10
   },
 	{
     "type": "mutation",
     "message": "you turn into a ball of string",
     "isDeath": false,
     "swap_character": true,
-    "character": 30
+    "character_type": 30
   },
 	{
     "type": "mutation",
     "message": "you turn into a gummy bear",
     "isDeath": false,
     "swap_character": true,
-    "character": 31
+    "character_type": 31
   },
 	{
     "type": "mutation",
