@@ -13,7 +13,7 @@ import (
 
 var (
 	ErrNilProfile  = errors.New("profile cannot be nil")
-	ErrWalkTooMuch = errors.New("profile has walked too much")
+	ErrWalkTooMuch = errors.New("[ERR-6002] profile has walked too much")
 )
 
 type ItemProvider interface {

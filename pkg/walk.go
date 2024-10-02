@@ -2,6 +2,7 @@ package deadenz
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ciphermountain/deadenz/internal/util"
 	"github.com/ciphermountain/deadenz/pkg/components"
@@ -11,8 +12,9 @@ import (
 var (
 	DefaultItemFindRate float64 = 0.5 // % of the time that will result in a findable item
 	DefaultDieRate      float64 = 0.3
-	ErrNotSpawnedIn             = errors.New("[ERR-1000] no active character. spawnin to begin")
-	ErrBackpackTooSmall         = errors.New("[ERR-1001] not enough room in your backpack")
+	ErrNotSpawnedIn             = errors.New("[ERR-6000] no active character. spawnin to begin") // 6xxx errors are client errors
+	ErrBackpackTooSmall         = errors.New("[ERR-6001] not enough room in your backpack")
+	ErrDataLoad                 = errors.New("[ERR-5000] data load error") // 5xxx errors should be internal and wrapped
 )
 
 func Walk(
@@ -59,7 +61,7 @@ func Walk(
 func findItem(profile *components.Profile, loader Loader, _ Config, options ...opts.Option) (*components.Profile, []components.Event, error) {
 	var items []components.Item
 	if err := loader.Load(&items, options...); err != nil {
-		return profile, nil, err
+		return profile, nil, fmt.Errorf("%w: %s", ErrDataLoad, err.Error())
 	}
 
 	findableItems := make([]components.Item, 0, len(items))
@@ -71,7 +73,7 @@ func findItem(profile *components.Profile, loader Loader, _ Config, options ...o
 
 	var decisions []components.ItemDecisionEvent
 	if err := loader.Load(&decisions, options...); err != nil {
-		return profile, nil, err
+		return profile, nil, fmt.Errorf("%w: %s", ErrDataLoad, err.Error())
 	}
 
 	// random item from loaded data
@@ -101,7 +103,7 @@ func findItem(profile *components.Profile, loader Loader, _ Config, options ...o
 func encounter(profile *components.Profile, loader Loader, conf Config, options ...opts.Option) (*components.Profile, []components.Event, error) {
 	var encounters []components.EncounterEvent
 	if err := loader.Load(&encounters, options...); err != nil {
-		return profile, nil, err
+		return profile, nil, fmt.Errorf("%w: %s", ErrDataLoad, err.Error())
 	}
 
 	evts := []components.Event{
@@ -119,7 +121,7 @@ func encounter(profile *components.Profile, loader Loader, conf Config, options 
 func action(profile *components.Profile, loader Loader, conf Config, options ...opts.Option) (*components.Profile, []components.Event, error) {
 	var actions []components.ActionEvent
 	if err := loader.Load(&actions, options...); err != nil {
-		return profile, nil, err
+		return profile, nil, fmt.Errorf("%w: %s", ErrDataLoad, err.Error())
 	}
 
 	evts := []components.Event{
@@ -137,12 +139,12 @@ func action(profile *components.Profile, loader Loader, conf Config, options ...
 func mutation(profile *components.Profile, loader Loader, conf Config, options ...opts.Option) (*components.Profile, []components.Event, error) {
 	var live []components.LiveMutationEvent
 	if err := loader.Load(&live, options...); err != nil {
-		return profile, nil, err
+		return profile, nil, fmt.Errorf("%w: %s", ErrDataLoad, err.Error())
 	}
 
 	var die []components.DieMutationEvent
 	if err := loader.Load(&die, options...); err != nil {
-		return profile, nil, err
+		return profile, nil, fmt.Errorf("%w: %s", ErrDataLoad, err.Error())
 	}
 
 	evt := newRandomMutationEvent(live, die, conf.DeathRate)
@@ -152,7 +154,7 @@ func mutation(profile *components.Profile, loader Loader, conf Config, options .
 		if ch := typed.ToCharacter(); ch != nil {
 			var characters []components.Character
 			if err := loader.Load(&characters, options...); err != nil {
-				return profile, nil, err
+				return profile, nil, fmt.Errorf("%w: %s", ErrDataLoad, err.Error())
 			}
 
 			for _, char := range characters {

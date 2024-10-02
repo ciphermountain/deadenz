@@ -3,6 +3,7 @@ package deadenz
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/ciphermountain/deadenz/internal/util"
 	"github.com/ciphermountain/deadenz/pkg/components"
@@ -44,7 +45,7 @@ func Spawn(
 
 	var characters []components.Character
 	if err := loader.Load(&characters, options...); err != nil {
-		return profile, nil, err
+		return profile, nil, fmt.Errorf("%w: %s", ErrDataLoad, err.Error())
 	}
 
 	char := characters[util.Random(0, int64(len(characters)-1))]
